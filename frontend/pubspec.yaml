@@ -1,4 +1,4 @@
-﻿name: import_export_app
+name: import_export_app
 description: Import Export Application
 publish_to: 'none'
 version: 1.0.0+1
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.6.0
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
   flutter_test:
