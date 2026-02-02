@@ -131,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     {
       'label': 'Agent Import',
       'icon': Icons.download,
-      'color': Colors.blue,
+      'color': const Color(0xFF0C44A6),
     },
     {
       'label': 'Partenaire',
@@ -281,36 +281,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
 
                   // Titre
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.person_add,
-                          size: 50,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'CRÉATION DE COMPTE',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Rejoignez notre plateforme',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -348,7 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                              color: Color(0xFF0C44A6),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -357,11 +327,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              '1. Nom & Prénom',
+                              ' Nom & Prénom',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
-                                color: Colors.blue,
+                                color: Color(0xFF0C44A6),
                               ),
                             ),
                           ),
@@ -372,7 +342,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               hintText: 'Entrez votre nom complet',
                               hintStyle: const TextStyle(fontSize: 14),
                               prefixIcon: const Icon(Icons.person,
-                                  color: Colors.blue, size: 20),
+                                  color: Color(0xFF0C44A6), size: 20),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide:
@@ -381,7 +351,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: Colors.blue, width: 1.5),
+                                    color: Color(0xFF0C44A6), width: 1.5),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
@@ -403,7 +373,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               hintText: 'E-mail',
                               hintStyle: const TextStyle(fontSize: 14),
                               prefixIcon: const Icon(Icons.email,
-                                  color: Colors.blue, size: 20),
+                                  color: Color(0xFF0C44A6), size: 20),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide:
@@ -412,7 +382,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: Colors.blue, width: 1.5),
+                                    color: Color(0xFF0C44A6), width: 1.5),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
@@ -444,7 +414,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     value: _selectedCountryCode,
                                     isExpanded: true,
                                     icon: const Icon(Icons.arrow_drop_down,
-                                        color: Colors.blue, size: 20),
+                                        color: Color(0xFF0C44A6), size: 20),
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
@@ -464,7 +434,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             children: [
                                               Text(country['flag']!,
                                                   style: const TextStyle(
-                                                      fontSize: 16)),
+                                                      fontSize: 14)),
                                               const SizedBox(width: 4),
                                               Text(country['code']!,
                                                   style: const TextStyle(
@@ -487,7 +457,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     hintText: 'Numéro de téléphone',
                                     hintStyle: const TextStyle(fontSize: 14),
                                     prefixIcon: const Icon(Icons.phone,
-                                        color: Colors.blue, size: 20),
+                                        color: Color(0xFF0C44A6), size: 20),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide:
@@ -496,7 +466,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide: const BorderSide(
-                                          color: Colors.blue, width: 1.5),
+                                          color: Color(0xFF0C44A6), width: 1.5),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[50],
@@ -519,87 +489,122 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              '2. Vous êtes :',
+                              ' Vous êtes :',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
-                                color: Colors.blue,
+                                color: Color.fromARGB(255, 12, 68, 166),
                               ),
                             ),
                           ),
                           const SizedBox(height: 8),
 
                           // Options compactes
-                          Row(
+                          Column(
                             children: _userTypes.map((type) {
                               final isSelected =
                                   _selectedUserType == type['label'];
-                              return Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedUserType = type['label'];
-                                    });
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 6),
-                                    decoration: BoxDecoration(
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedUserType = type['label'];
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? (type['color'] as Color)
+                                            .withOpacity(0.08)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
                                       color: isSelected
-                                          ? (type['color'] as Color)
-                                              .withOpacity(0.1)
-                                          : Colors.grey[50],
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? type['color'] as Color
-                                            : Colors.grey[300]!,
-                                        width: isSelected ? 1.5 : 1,
-                                      ),
+                                          ? type['color'] as Color
+                                          : Colors.grey[200]!,
+                                      width: isSelected ? 2 : 1,
                                     ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.1),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: (type['color'] as Color)
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
                                           type['icon'] as IconData,
                                           color: type['color'] as Color,
-                                          size: 22,
+                                          size: 14,
                                         ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          type['label'],
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: isSelected
-                                                ? FontWeight.w600
-                                                : FontWeight.normal,
-                                            color: type['color'] as Color,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              type['label'],
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: type['color'] as Color,
+                                              ),
+                                            ),
+                                            if (type['description'] !=
+                                                null) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                type['description'],
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[600],
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      Icon(
+                                        isSelected
+                                            ? Icons.check_circle
+                                            : Icons.radio_button_unchecked,
+                                        color: isSelected
+                                            ? type['color'] as Color
+                                            : Colors.grey[400],
+                                        size: 14,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );
                             }).toList(),
                           ),
-
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 8),
 
                           // 3. Mot de passe
                           const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              '3. Mot de passe',
+                              ' Mot de passe',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
-                                color: Colors.blue,
+                                color: Color(0xFF0C44A6),
                               ),
                             ),
                           ),
@@ -610,7 +615,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               hintText: 'Mot de passe',
                               hintStyle: const TextStyle(fontSize: 14),
                               prefixIcon: const Icon(Icons.lock,
-                                  color: Colors.blue, size: 20),
+                                  color: Color(0xFF0C44A6), size: 20),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isPasswordVisible
@@ -633,7 +638,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: Colors.blue, width: 1.5),
+                                    color: Color(0xFF0C44A6), width: 1.5),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
@@ -653,11 +658,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              '4. Confirmer le mot de passe',
+                              'Confirmer le mot de passe',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
-                                color: Colors.blue,
+                                color: Color(0xFF0C44A6),
                               ),
                             ),
                           ),
@@ -668,7 +673,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               hintText: 'Confirmer le mot de passe',
                               hintStyle: const TextStyle(fontSize: 14),
                               prefixIcon: const Icon(Icons.lock_outline,
-                                  color: Colors.blue, size: 20),
+                                  color: Color(0xFF0C44A6), size: 20),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isConfirmPasswordVisible
@@ -692,7 +697,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: Colors.blue, width: 1.5),
+                                    color: Color(0xFF0C44A6), width: 1.5),
                               ),
                               filled: true,
                               fillColor: Colors.grey[50],
@@ -723,7 +728,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _register,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
+                                backgroundColor: const Color(0xFF0C44A6),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -751,19 +756,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                           const SizedBox(height: 15),
 
-                          // Note
-                          const Text(
-                            'Délai de création de compte : 2 secondes',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-
-                          const SizedBox(height: 10),
-
                           // Lien vers connexion
                           TextButton(
                             onPressed: () {
@@ -777,7 +769,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: const Text(
                               'Déjà un compte ? Se connecter',
                               style: TextStyle(
-                                color: Colors.blue,
+                                color: Color(0xFF0C44A6),
                                 fontSize: 14,
                                 decoration: TextDecoration.underline,
                               ),

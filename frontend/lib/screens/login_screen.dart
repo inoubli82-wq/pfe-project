@@ -99,36 +99,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   colors: [
                     Colors.black.withOpacity(0.6),
                     Colors.transparent,
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.lock_outlined,
-                      size: 60,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'AST LOGISTIC',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Connectez-vous à votre compte',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 14,
-                      ),
-                    ),
+                 
+              
+              
+              
+                   
                   ],
                 ),
               ),
@@ -168,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Color(0xFF0C44A6),
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -180,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText: 'E-mail',
                                 labelStyle: const TextStyle(fontSize: 14),
                                 prefixIcon: const Icon(Icons.email,
-                                    color: Colors.blue, size: 20),
+                                    color: Color(0xFF0C44A6), size: 20),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide:
@@ -189,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: const BorderSide(
-                                      color: Colors.blue, width: 1.5),
+                                      color: Color(0xFF0C44A6), width: 1.5),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[50],
@@ -212,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText: 'Mot de passe',
                                 labelStyle: const TextStyle(fontSize: 14),
                                 prefixIcon: const Icon(Icons.lock,
-                                    color: Colors.blue, size: 20),
+                                    color: Color(0xFF0C44A6), size: 20),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _isPasswordVisible
@@ -236,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: const BorderSide(
-                                      color: Colors.blue, width: 1.5),
+                                      color: Color(0xFF0C44A6), width: 1.5),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[50],
@@ -268,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: const Text(
                                   "Mot de passe oublié ?",
                                   style: TextStyle(
-                                    color: Colors.blue,
+                                    color: Color(0xFF0C44A6),
                                     fontWeight: FontWeight.w500,
                                     fontSize: 13,
                                   ),
@@ -285,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: const Color(0xFF0C44A6),
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -359,13 +334,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.blue,
+                                  backgroundColor: const Color(0xFF0C44A6),
+                                  foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   side: const BorderSide(
-                                    color: Colors.blue,
+                                    color: Color(0xFF0C44A6),
                                     width: 1.5,
                                   ),
                                 ),
@@ -402,10 +377,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 // Ouvrir le site web
                               },
-                              child: Text(
+                              child: const Text(
                                 'Visitez notre site web',
                                 style: TextStyle(
-                                  color: Colors.blue,
+                                  color: Color(0xFF0C44A6),
                                   fontSize: 12,
                                   decoration: TextDecoration.underline,
                                 ),
