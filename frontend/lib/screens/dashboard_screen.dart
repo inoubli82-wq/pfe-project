@@ -64,13 +64,13 @@ class DashboardScreen extends StatelessWidget {
                                 width: 60,
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
+                                  color: Color(0xFF0C44A6).withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(
                                   Icons.create_new_folder,
                                   size: 40,
-                                  color: Colors.blue,
+                                  color: Color(0xFF0C44A6),
                                 ),
                               ),
                               const SizedBox(width: 20),
@@ -85,7 +85,7 @@ class DashboardScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
+                                        color: Color(0xFF0C44A6),
                                       ),
                                     ),
                                     const SizedBox(height: 5),
@@ -102,7 +102,7 @@ class DashboardScreen extends StatelessWidget {
                               // Flèche
                               const Icon(
                                 Icons.arrow_forward_ios,
-                                color: Colors.blue,
+                                color: Color(0xFF0C44A6),
                               ),
                             ],
                           ),

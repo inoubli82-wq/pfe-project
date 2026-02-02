@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class CreateExportPage extends StatefulWidget {
   const CreateExportPage({super.key});
@@ -221,7 +220,6 @@ class _CreateExportPageState extends State<CreateExportPage> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
-      locale: const Locale('fr', 'FR'),
     );
 
     if (picked != null && picked != _selectedDate) {
@@ -303,7 +301,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
             width: double.infinity,
             height: double.infinity,
             child: Image.asset(
-              'assets/images/background.jpg',
+              'assets/images/backgrounds/login_background.jpg',
               fit: BoxFit.cover,
             ),
           ),
@@ -319,28 +317,15 @@ class _CreateExportPageState extends State<CreateExportPage> {
           Positioned(
             top: 45.0,
             left: 20.0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10.0,
-                    spreadRadius: 2.0,
-                  ),
-                ],
+            child: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Color(0xFF0C44A6),
+                size: 24.0,
               ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Color(0xFF2D3748),
-                  size: 24.0,
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
             ),
           ),
 
@@ -418,41 +403,42 @@ class _CreateExportPageState extends State<CreateExportPage> {
                       const SizedBox(height: 20.0),
 
                       // Calendrier pour date d'embarquement
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.calendar_today,
-                              color: Color(0xFF4299E1),
-                            ),
-                            const SizedBox(width: 15.0),
-                            Expanded(
-                              child: Text(
-                                _selectedDate == null
-                                    ? 'Date d\'embarquement'
-                                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: _selectedDate == null
-                                      ? Colors.grey[400]
-                                      : Colors.black,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.calendar_month,
+                      GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15.0, vertical: 18.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(12.0),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
                                 color: Color(0xFF4299E1),
                               ),
-                              onPressed: () => _selectDate(context),
-                            ),
-                          ],
+                              const SizedBox(width: 15.0),
+                              Expanded(
+                                child: Text(
+                                  _selectedDate == null
+                                      ? 'Date d\'embarquement'
+                                      : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: _selectedDate == null
+                                        ? Colors.grey[400]
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_drop_down,
+                                color: Color(0xFF4299E1),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -584,7 +570,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
 
                       const SizedBox(height: 25.0),
 
-                      // Nombre de barres - Compteur devant le label
+                      // Nombre de barres - Label avant le compteur
                       Container(
                         padding: const EdgeInsets.all(15.0),
                         decoration: BoxDecoration(
@@ -595,6 +581,16 @@ class _CreateExportPageState extends State<CreateExportPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // Label
+                            const Text(
+                              'Nombre de barres',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF4A5568),
+                              ),
+                            ),
+
                             // Compteur
                             Row(
                               children: [
@@ -656,23 +652,13 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                 ),
                               ],
                             ),
-
-                            // Label
-                            const Text(
-                              'Nombre de barres',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF4A5568),
-                              ),
-                            ),
                           ],
                         ),
                       ),
 
                       const SizedBox(height: 20.0),
 
-                      // Nombre de singles - Compteur devant le label
+                      // Nombre de singles - Label avant le compteur
                       Container(
                         padding: const EdgeInsets.all(15.0),
                         decoration: BoxDecoration(
@@ -683,6 +669,16 @@ class _CreateExportPageState extends State<CreateExportPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // Label
+                            const Text(
+                              'Nombre de singles',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF4A5568),
+                              ),
+                            ),
+
                             // Compteur
                             Row(
                               children: [
@@ -743,16 +739,6 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                   },
                                 ),
                               ],
-                            ),
-
-                            // Label
-                            const Text(
-                              'Nombre de singles',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF4A5568),
-                              ),
                             ),
                           ],
                         ),
