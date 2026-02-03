@@ -131,11 +131,16 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Container(
-                width: 367,
-                margin: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              // Espace vide pour pousser le formulaire vers le bas
+              Expanded(
+                child: Container(),
+              ),
+
+              // Formulaire positionné en bas
+              Container(
+                margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -394,44 +399,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-
-                        const SizedBox(height: 20),
-
-                        // Informations supplémentaires
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(
-                            'En vous connectant, vous acceptez nos conditions d\'utilisation et notre politique de confidentialité.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        // Lien vers le site web
-                        TextButton(
-                          onPressed: () {
-                            // Ouvrir le site web
-                          },
-                          child: const Text(
-                            'Visitez notre site web',
-                            style: TextStyle(
-                              color: Color(0xFF0C44A6),
-                              fontSize: 12,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

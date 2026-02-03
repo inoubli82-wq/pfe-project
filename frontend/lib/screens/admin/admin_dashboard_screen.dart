@@ -392,7 +392,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
-                    color: Colors.red,
+                    color: Color(0xFF0C44A6),
                     shape: BoxShape.circle,
                   ),
                   child: Text(
@@ -430,7 +430,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Navigator.pop(context);
               _logout();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0C44A6)),
             child: const Text('Déconnexion',
                 style: TextStyle(color: Colors.white)),
           ),

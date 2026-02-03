@@ -77,85 +77,41 @@ class _ExportDashboardScreenState extends State<ExportDashboardScreen> {
                 },
               ),
 
-              // Main Content
+              // Main Content - Centered buttons only
               Expanded(
-                child: Container(
-                  margin: const EdgeInsets.all(20),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Role Badge
-                      RoleBadge(role: User.roleToString(widget.user.role)),
-
-                      const SizedBox(height: 30),
-
-                      // Create Export Button
-                      ActionCardButton(
-                        title: 'Créer un dossier export',
-                        subtitle: 'Démarrer une nouvelle exportation',
-                        icon: Icons.create_new_folder,
-                        color: const Color(0xFF0C44A6),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const CreateExportPage()),
-                        ).then((_) => _loadUnreadCount()),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Track Export Button
-                      ActionCardButton(
-                        title: 'Suivre l\'export',
-                        subtitle: 'Suivre le statut de vos exportations',
-                        icon: Icons.track_changes,
-                        color: Colors.green,
-                        onTap: () => _showTrackingDialog(context),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Notifications Button
-                      ActionCardButton(
-                        title: 'Notifications',
-                        subtitle: 'Voir les mises à jour de vos demandes',
-                        icon: Icons.notifications,
-                        color: Colors.orange,
-                        badgeCount: _unreadCount,
-                        onTap: () {
-                          Navigator.push(
+                child: Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Create Export Button
+                        ActionCardButton(
+                          title: 'Créer un dossier export',
+                          subtitle: '',
+                          icon: Icons.create_new_folder,
+                          color: const Color(0xFF0C44A6),
+                          onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  NotificationsScreen(user: widget.user),
+                              builder: (context) => const CreateExportPage(),
                             ),
-                          ).then((_) => _loadUnreadCount());
-                        },
-                      ),
-
-                      const Spacer(),
-
-                      // Info Text
-                      Text(
-                        'Les demandes d\'export nécessitent l\'approbation du partenaire',
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                          fontSize: 12,
+                          ).then((_) => _loadUnreadCount()),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+
+                        const SizedBox(height: 20),
+
+                        // Track Export Button
+                        ActionCardButton(
+                          title: 'Suivre l\'export',
+                          subtitle: '',
+                          icon: Icons.track_changes,
+                          color: Colors.green,
+                          onTap: () => _showTrackingDialog(context),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

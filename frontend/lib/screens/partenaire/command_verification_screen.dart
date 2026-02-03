@@ -633,7 +633,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       border:
                           Border(left: BorderSide(color: Colors.grey[300]!)),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Icon(
                         Icons.add,
                         color: Colors.blue,

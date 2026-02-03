@@ -275,7 +275,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Export créé avec succès !'),
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFF0C44A6),
           duration: Duration(seconds: 2),
         ),
       );
@@ -371,7 +371,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                           hintStyle: TextStyle(color: Colors.grey[400]),
                           prefixIcon: const Icon(
                             Icons.confirmation_number,
-                            color: Color(0xFF4299E1),
+                            color: Color(0xFF0C44A6),
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -384,7 +384,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: const BorderSide(
-                              color: Color(0xFF4299E1),
+                              color: Color(0xFF0C44A6),
                               width: 2.0,
                             ),
                           ),
@@ -420,7 +420,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                             children: [
                               const Icon(
                                 Icons.calendar_today,
-                                color: Color(0xFF4299E1),
+                                color: Color(0xFF0C44A6),
                               ),
                               const SizedBox(width: 15.0),
                               Expanded(
@@ -438,7 +438,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                               ),
                               const Icon(
                                 Icons.arrow_drop_down,
-                                color: Color(0xFF4299E1),
+                                color: Color(0xFF0C44A6),
                               ),
                             ],
                           ),
@@ -461,7 +461,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                           hintStyle: TextStyle(color: Colors.grey[400]),
                           prefixIcon: const Icon(
                             Icons.person,
-                            color: Color(0xFF4299E1),
+                            color: Color(0xFF0C44A6),
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -474,7 +474,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: const BorderSide(
-                              color: Color(0xFF4299E1),
+                              color: Color(0xFF0C44A6),
                               width: 2.0,
                             ),
                           ),
@@ -508,7 +508,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                             value: _selectedCountry,
                             isExpanded: true,
                             icon: const Icon(Icons.arrow_drop_down,
-                                color: Color(0xFF4299E1)),
+                                color: Color(0xFF0C44A6)),
                             hint: const Text(
                               'Sélectionnez un pays',
                               style: TextStyle(color: Colors.grey),
@@ -547,7 +547,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                             value: _selectedTransporter,
                             isExpanded: true,
                             icon: const Icon(Icons.arrow_drop_down,
-                                color: Color(0xFF4299E1)),
+                                color: Color(0xFF0C44A6)),
                             hint: const Text(
                               'Sélectionnez un transporteur',
                               style: TextStyle(color: Colors.grey),
@@ -623,7 +623,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(8.0),
                                     border: Border.all(
-                                        color: const Color(0xFF4299E1)),
+                                        color: const Color(0xFF0C44A6)),
                                   ),
                                   child: Text(
                                     '$_barsCount',
@@ -631,7 +631,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                     style: const TextStyle(
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF4299E1),
+                                      color: Color(0xFF0C44A6),
                                     ),
                                   ),
                                 ),
@@ -711,7 +711,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(8.0),
                                     border: Border.all(
-                                        color: const Color(0xFF4299E1)),
+                                        color: const Color(0xFF0C44A6)),
                                   ),
                                   child: Text(
                                     '$_singlesCount',
@@ -763,7 +763,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                             ),
                             elevation: 8.0,
                             shadowColor:
-                                const Color(0xFF38A169).withOpacity(0.5),
+                                const Color(0xFF0C44A6).withOpacity(0.5),
                           ),
                           child: const Text(
                             'Confirmer la création',
