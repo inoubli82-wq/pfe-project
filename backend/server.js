@@ -1,329 +1,147 @@
-﻿// ==============================================
-// SERVEUR BACKEND PFE IMPORT/EXPORT
 // ==============================================
+// SERVEUR BACKEND PFE - Refactored Architecture
+// ==============================================
+// Structure:
+//   server.js          - Entry point (this file)
+//   config/            - Configuration files
+//   controllers/       - Business logic
+//   middleware/        - Authentication & validation
+//   routes/            - API route definitions
+//   utils/             - Helper functions
+//   database/          - Database scripts
+// ==============================================
+
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const app = express();
-const PORT = 5000;
 
-// ========== CONFIGURATION ==========
+// Import configuration
+const { query, getOne } = require("./config/database");
+const { ROLES } = require("./config/roles");
+
+// Import routes
+const { registerRoutes } = require("./routes");
+
+// Initialize Express app
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// ==============================================
+// MIDDLEWARE CONFIGURATION
+// ==============================================
 app.use(cors());
 app.use(express.json());
 
-// ========== BASE DE DONNÉES SIMULÉE ==========
-let users = [
-  {
-    id: 1,
-    fullName: "Admin Test",
-    email: "admin@test.com",
-    phone: "+21612345678",
-    countryCode: "+216",
-    userType: "Agent Export",
-    password: "123456", // En production, utiliser bcrypt
-    createdAt: "2024-01-30T10:00:00.000Z"
-  }
-];
+// ==============================================
+// ROOT ROUTES (Health check & info)
+// ==============================================
 
-// ========== ROUTES API ==========
+// Root endpoint - API info & health check
+app.get("/", async (req, res) => {
+  try {
+    const usersCount = await getOne("SELECT COUNT(*) FROM users");
+    const exportsCount = await getOne("SELECT COUNT(*) FROM exports");
+    const importsCount = await getOne("SELECT COUNT(*) FROM imports");
 
-// 1. ROUTE RACINE - Vérification serveur
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "🚀 BACKEND PFE IMPORT/EXPORT - API ACTIVE",
-    version: "2.0.0",
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      auth: {
-        register: "POST /api/auth/register",
-        login: "POST /api/auth/login",
-        users: "GET /api/auth/users"
+    res.json({
+      success: true,
+      message: "🚀 BACKEND PFE - PostgreSQL + MVC Architecture",
+      version: "5.0.0",
+      database: "PostgreSQL",
+      architecture: "MVC (Controllers/Routes/Middleware)",
+      timestamp: new Date().toISOString(),
+      stats: {
+        users: parseInt(usersCount.count),
+        exports: parseInt(exportsCount.count),
+        imports: parseInt(importsCount.count),
       },
-      test: "GET /api/test"
-    }
-  });
+      roles: Object.values(ROLES),
+      endpoints: {
+        auth: "/api/auth",
+        admin: "/api/admin",
+        exports: "/api/exports",
+        imports: "/api/imports",
+      },
+    });
+  } catch (error) {
+    res.json({
+      success: true,
+      message: "🚀 BACKEND PFE - PostgreSQL",
+      warning: "Database not initialized. Run: npm run db:init",
+    });
+  }
 });
 
-// 2. ROUTE TEST
-app.get("/api/test", (req, res) => {
-  res.json({
-    success: true,
-    message: "✅ Backend opérationnel",
-    server: "Node.js/Express",
-    port: PORT,
-    totalUsers: users.length
-  });
+// Test database connection
+app.get("/api/test", async (req, res) => {
+  try {
+    const result = await query("SELECT NOW() as time");
+    res.json({
+      success: true,
+      message: "✅ PostgreSQL connecté",
+      serverTime: result.rows[0].time,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "❌ Erreur de connexion PostgreSQL",
+      error: error.message,
+    });
+  }
 });
 
-// 3. INSCRIPTION - NOUVEAU FORMULAIRE
-app.post("/api/auth/register", (req, res) => {
-  console.log("📝 Nouvelle inscription reçue:", req.body);
-  
-  const {
-    fullName,
-    email,
-    phone,
-    countryCode,
-    userType,
-    password,
-    confirmPassword
-  } = req.body;
-  
-  // ========== VALIDATION ==========
-  
-  // 1. Champs obligatoires
-  if (!fullName || !email || !phone || !userType || !password || !confirmPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "Tous les champs sont obligatoires"
-    });
-  }
-  
-  // 2. Validation email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({
-      success: false,
-      message: "Format d'email invalide"
-    });
-  }
-  
-  // 3. Vérifier si email existe déjà
-  const emailExists = users.some(user => user.email === email);
-  if (emailExists) {
-    return res.status(400).json({
-      success: false,
-      message: "Un compte existe déjà avec cet email"
-    });
-  }
-  
-  // 4. Vérifier mot de passe
-  if (password.length < 6) {
-    return res.status(400).json({
-      success: false,
-      message: "Le mot de passe doit contenir au moins 6 caractères"
-    });
-  }
-  
-  // 5. Confirmation mot de passe
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "Les mots de passe ne correspondent pas"
-    });
-  }
-  
-  // 6. Vérifier type d'utilisateur
-  const validUserTypes = ["Agent Export", "Agent Import", "Partenaire"];
-  if (!validUserTypes.includes(userType)) {
-    return res.status(400).json({
-      success: false,
-      message: "Type d'utilisateur invalide"
-    });
-  }
-  
-  // ========== CRÉATION UTILISATEUR ==========
-  
-  const newUser = {
-    id: users.length + 1,
-    fullName,
-    email,
-    phone: countryCode + phone.replace(/\D/g, ''), // Formater le numéro
-    countryCode,
-    userType,
-    password, // À hasher en production avec bcrypt
-    createdAt: new Date().toISOString(),
-    status: "active"
-  };
-  
-  users.push(newUser);
-  
-  console.log(`✅ Nouvel utilisateur créé: ${email} (${userType})`);
-  
-  // ========== RÉPONSE ==========
-  
-  res.status(201).json({
-    success: true,
-    message: `✅ Compte ${userType} créé avec succès !`,
-    user: {
-      id: newUser.id,
-      fullName: newUser.fullName,
-      email: newUser.email,
-      phone: newUser.phone,
-      userType: newUser.userType,
-      createdAt: newUser.createdAt
-    },
-    token: `jwt-token-${newUser.id}-${Date.now()}`,
-    debug: {
-      totalUsers: users.length,
-      userType: userType
-    }
-  });
-});
+// ==============================================
+// REGISTER API ROUTES
+// ==============================================
+registerRoutes(app);
 
-// 4. CONNEXION
-app.post("/api/auth/login", (req, res) => {
-  console.log("🔐 Tentative de connexion:", req.body.email);
-  
-  const { email, password } = req.body;
-  
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "Email et mot de passe requis"
-    });
-  }
-  
-  // Chercher l'utilisateur
-  const user = users.find(u => u.email === email);
-  
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: "❌ Email ou mot de passe incorrect"
-    });
-  }
-  
-  // Vérifier mot de passe (simulé)
-  if (user.password !== password) {
-    return res.status(401).json({
-      success: false,
-      message: "❌ Email ou mot de passe incorrect"
-    });
-  }
-  
-  // Connexion réussie
-  res.json({
-    success: true,
-    message: "✅ Connexion réussie !",
-    user: {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      phone: user.phone,
-      userType: user.userType,
-      createdAt: user.createdAt
-    },
-    token: `jwt-auth-token-${user.id}-${Date.now()}`
-  });
-});
+// ==============================================
+// ERROR HANDLING
+// ==============================================
 
-// 5. LISTE DES UTILISATEURS (pour debug/admin)
-app.get("/api/auth/users", (req, res) => {
-  res.json({
-    success: true,
-    count: users.length,
-    users: users.map(u => ({
-      id: u.id,
-      fullName: u.fullName,
-      email: u.email,
-      userType: u.userType,
-      phone: u.phone,
-      createdAt: u.createdAt
-    }))
-  });
-});
-
-// 6. RÉINITIALISATION MOT DE PASSE
-app.post("/api/auth/forgot-password", (req, res) => {
-  const { email } = req.body;
-  
-  if (!email) {
-    return res.status(400).json({
-      success: false,
-      message: "Email requis"
-    });
-  }
-  
-  const userExists = users.some(u => u.email === email);
-  
-  if (!userExists) {
-    return res.status(404).json({
-      success: false,
-      message: "Aucun compte trouvé avec cet email"
-    });
-  }
-  
-  res.json({
-    success: true,
-    message: "📧 Email de réinitialisation envoyé (simulation)",
-    note: "En production, envoyer un vrai email avec lien de réinitialisation"
-  });
-});
-
-// 7. ROUTES SUPPLÉMENTAIRES POUR FLUTTER
-app.get("/api/auth/profile", (req, res) => {
-  // Simulation - normalement vérifier le token JWT
-  const token = req.headers.authorization;
-  
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: "Token manquant"
-    });
-  }
-  
-  // Simuler un utilisateur
-  res.json({
-    success: true,
-    user: {
-      id: 1,
-      fullName: "Utilisateur Test",
-      email: "test@example.com",
-      userType: "Agent Export",
-      phone: "+21612345678"
-    }
-  });
-});
-
-// ========== GESTION ERREURS ==========
-
-// Route non trouvée
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: `Route non trouvée: ${req.method} ${req.url}`,
-    availableRoutes: [
-      "GET /",
-      "GET /api/test",
-      "POST /api/auth/register",
-      "POST /api/auth/login",
-      "GET /api/auth/users",
-      "POST /api/auth/forgot-password",
-      "GET /api/auth/profile"
-    ]
   });
 });
 
-// Erreur serveur
+// Global error handler
 app.use((err, req, res, next) => {
   console.error("❌ Erreur serveur:", err);
-  
   res.status(500).json({
     success: false,
     message: "Erreur serveur interne",
-    error: process.env.NODE_ENV === "development" ? err.message : undefined
   });
 });
 
-// ========== DÉMARRAGE SERVEUR ==========
+// ==============================================
+// START SERVER
+// ==============================================
 app.listen(PORT, () => {
   console.log("=".repeat(60));
-  console.log("🚀 BACKEND PFE DÉMARRÉ AVEC SUCCÈS !");
+  console.log("🚀 BACKEND PFE - MVC Architecture");
   console.log("=".repeat(60));
   console.log(`📡 Port: ${PORT}`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
-  console.log(`📱 URL émulateur: http://10.0.2.2:${PORT}`);
+  console.log(`🗄️  Database: PostgreSQL`);
   console.log("");
-  console.log("👤 UTILISATEUR TEST:");
-  console.log("   Email: admin@test.com");
-  console.log("   Mot de passe: 123456");
+  console.log("📂 STRUCTURE:");
+  console.log("   ├── controllers/   Business logic");
+  console.log("   ├── routes/        API endpoints");
+  console.log("   ├── middleware/    Auth & validation");
+  console.log("   ├── config/        Database & roles");
+  console.log("   └── utils/         Helper functions");
   console.log("");
-  console.log("📋 ENDPOINTS:");
-  console.log(`   GET  http://localhost:${PORT}/`);
-  console.log(`   POST http://localhost:${PORT}/api/auth/register`);
-  console.log(`   POST http://localhost:${PORT}/api/auth/login`);
+  console.log("📋 SETUP:");
+  console.log("   1. Create database: createdb pfe_import_export");
+  console.log("   2. Initialize: npm run db:init");
   console.log("");
-  console.log("⚡ Prêt à recevoir des requêtes...");
+  console.log("🔑 TEST ACCOUNTS (after db:init):");
+  console.log("   🔴 Admin:        admin@test.com / admin123");
+  console.log("   🟢 Agent Export: export@test.com / export123");
+  console.log("   🔵 Agent Import: import@test.com / import123");
+  console.log("   🟠 Partenaire: partenaire@test.com / partenaire123");
   console.log("=".repeat(60));
 });
