@@ -1,7 +1,3 @@
-// ==============================================
-// AUTH CONTROLLER
-// ==============================================
-
 const bcrypt = require("bcryptjs");
 const { query, getOne } = require("../config/database");
 const { ROLES, VALID_TRANSPORTERS } = require("../config/roles");

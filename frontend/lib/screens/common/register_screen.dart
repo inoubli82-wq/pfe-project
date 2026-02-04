@@ -22,13 +22,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
   String? _selectedUserType;
   String _selectedCountryCode = '+216';
-  String? _selectedTransporter;
-
-  final List<String> _transporters = [
-    'DHL',
-    'AST',
-    'Trasuniverse',
-  ];
 
   final List<Map<String, String>> _countries = [
     {"code": "+93", "name": "Afghanistan", "flag": "🇦🇫"},
@@ -135,16 +128,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'label': 'Agent Export',
       'icon': Icons.upload,
       'color': Colors.green,
+      'description': 'Gestion des opérations d\'exportation',
     },
     {
       'label': 'Agent Import',
       'icon': Icons.download,
       'color': const Color(0xFF0C44A6),
+      'description': 'Gestion des opérations d\'importation',
     },
     {
       'label': 'Partenaire',
       'icon': Icons.handshake,
       'color': Colors.orange,
+      'description': 'Client partenaire ',
     },
   ];
 
@@ -204,17 +200,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
 
-      // Validate transporter for Partenaire
-      if (_selectedUserType == 'Partenaire' && _selectedTransporter == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Veuillez sélectionner un transporteur'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
       setState(() => _isLoading = true);
 
       try {
@@ -227,8 +212,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           userType: _selectedUserType!,
           password: _passwordController.text,
           confirmPassword: _confirmPasswordController.text,
-          transporter:
-              _selectedUserType == 'Partenaire' ? _selectedTransporter : null,
         );
 
         setState(() => _isLoading = false);
@@ -303,8 +286,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
+                      Icons.arrow_back_ios,
+                      color: Color(0xFF0C44A6),
                       size: 28,
                     ),
                     onPressed: () {
@@ -623,60 +606,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 );
                               }).toList(),
                             ),
-
-                            // Transporter dropdown (only shown when Partenaire is selected)
-                            if (_selectedUserType == 'Partenaire') ...[
-                              const SizedBox(height: 15),
-                              const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  ' Transporteur',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                    color: Color(0xFF0C44A6),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[50],
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  border: Border.all(color: Colors.grey[300]!),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _selectedTransporter,
-                                    isExpanded: true,
-                                    icon: const Icon(Icons.arrow_drop_down,
-                                        color: Color(0xFF4299E1)),
-                                    hint: const Text(
-                                      'Sélectionnez un transporteur',
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
-                                    ),
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        _selectedTransporter = newValue;
-                                      });
-                                    },
-                                    items:
-                                        _transporters.map((String transporter) {
-                                      return DropdownMenuItem<String>(
-                                        value: transporter,
-                                        child: Text(transporter),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ],
 
                             const SizedBox(height: 8),
 

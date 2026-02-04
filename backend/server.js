@@ -1,15 +1,4 @@
-// ==============================================
-// SERVEUR BACKEND PFE - Refactored Architecture
-// ==============================================
-// Structure:
-//   server.js          - Entry point (this file)
-//   config/            - Configuration files
-//   controllers/       - Business logic
-//   middleware/        - Authentication & validation
-//   routes/            - API route definitions
-//   utils/             - Helper functions
-//   database/          - Database scripts
-// ==============================================
+
 
 require("dotenv").config();
 const express = require("express");
@@ -21,6 +10,7 @@ const { ROLES } = require("./config/roles");
 
 // Import routes
 const { registerRoutes } = require("./routes");
+const { generateToken } = require("./utils/helpers");
 
 // Initialize Express app
 const app = express();
@@ -90,14 +80,9 @@ app.get("/api/test", async (req, res) => {
   }
 });
 
-// ==============================================
-// REGISTER API ROUTES
-// ==============================================
+
 registerRoutes(app);
 
-// ==============================================
-// ERROR HANDLING
-// ==============================================
 
 // 404 handler
 app.use((req, res) => {
@@ -120,20 +105,12 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ==============================================
 app.listen(PORT, () => {
-  console.log("=".repeat(60));
-  console.log("🚀 BACKEND PFE - MVC Architecture");
-  console.log("=".repeat(60));
+ 
   console.log(`📡 Port: ${PORT}`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log(`🗄️  Database: PostgreSQL`);
   console.log("");
-  console.log("📂 STRUCTURE:");
-  console.log("   ├── controllers/   Business logic");
-  console.log("   ├── routes/        API endpoints");
-  console.log("   ├── middleware/    Auth & validation");
-  console.log("   ├── config/        Database & roles");
-  console.log("   └── utils/         Helper functions");
-  console.log("");
+ 
   console.log("📋 SETUP:");
   console.log("   1. Create database: createdb pfe_import_export");
   console.log("   2. Initialize: npm run db:init");

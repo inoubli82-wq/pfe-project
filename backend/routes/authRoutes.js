@@ -11,7 +11,7 @@ router.post("/register", authController.register);
 
 // POST /api/auth/login - Login user
 router.post("/login", authController.login);
-
+console.log("token");
 // GET /api/auth/profile - Get user profile
 router.get("/profile", authController.getProfile);
 

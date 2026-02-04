@@ -206,30 +206,6 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Stats Cards
-                Row(
-                  children: [
-                    Expanded(
-                      child: StatsCard(
-                        title: 'Demandes Export',
-                        value: '${_pendingExports.length}',
-                        icon: Icons.upload,
-                        color: Colors.green,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: StatsCard(
-                        title: 'Demandes Import',
-                        value: '${_pendingImports.length}',
-                        icon: Icons.download,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
                 // Pending Requests Section
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
