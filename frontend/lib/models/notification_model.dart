@@ -144,6 +144,8 @@ class PendingRequest {
   final int? createdBy;
   final String? createdByName;
   final DateTime createdAt;
+  final int? barsCount;
+  final int? singlesCount;
 
   PendingRequest({
     required this.id,
@@ -158,6 +160,8 @@ class PendingRequest {
     this.createdBy,
     this.createdByName,
     required this.createdAt,
+    this.barsCount,
+    this.singlesCount,
   });
 
   factory PendingRequest.fromJson(Map<String, dynamic> json, String type) {
@@ -180,6 +184,8 @@ class PendingRequest {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
+      barsCount: json['bars_count'],
+      singlesCount: json['singles_count'],
     );
   }
 

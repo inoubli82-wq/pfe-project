@@ -16,14 +16,14 @@ class ConfirmationDialog extends StatelessWidget {
   final VoidCallback onConfirm;
 
   const ConfirmationDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.message,
     this.confirmText = 'Confirmer',
     this.cancelText = 'Annuler',
     this.confirmColor,
     required this.onConfirm,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +95,9 @@ class RejectionReasonDialog extends StatefulWidget {
   final Function(String reason) onSubmit;
 
   const RejectionReasonDialog({
-    Key? key,
+    super.key,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   State<RejectionReasonDialog> createState() => _RejectionReasonDialogState();
@@ -313,7 +313,7 @@ class RequestDetailDialog extends StatelessWidget {
   final VoidCallback? onReject;
 
   const RequestDetailDialog({
-    Key? key,
+    super.key,
     required this.type,
     required this.trailerNumber,
     required this.entityName,
@@ -327,7 +327,7 @@ class RequestDetailDialog extends StatelessWidget {
     this.showApprovalButtons = false,
     this.onApprove,
     this.onReject,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

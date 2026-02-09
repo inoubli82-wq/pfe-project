@@ -10,11 +10,13 @@ import 'package:import_export_app/screens/common/notifications_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
 import 'package:import_export_app/widgets/widgets.dart';
 
+import 'command_verification_screen.dart';
+import 'verification_request_card.dart';
+
 class PartenaireDashboardScreen extends StatefulWidget {
   final User user;
 
-  const PartenaireDashboardScreen({Key? key, required this.user})
-      : super(key: key);
+  const PartenaireDashboardScreen({super.key, required this.user});
 
   @override
   State<PartenaireDashboardScreen> createState() =>
@@ -277,21 +279,9 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
                 (context, index) {
                   final allRequests = [..._pendingExports, ..._pendingImports];
                   final request = allRequests[index];
-                  return RequestCard(
-                    type: request.type,
-                    trailerNumber: request.trailerNumber,
-                    entityName: request.entityName,
-                    country: request.country,
-                    date: request.date,
-                    status: request.status,
-                    approvalStatus: request.approvalStatus,
-                    createdByName: request.createdByName,
-                    onTap: () => _showRequestDetail(request),
-                    trailing: ApprovalButtons(
-                      onApprove: () => _handleApprove(request),
-                      onReject: () => _handleReject(request),
-                      isLoading: _isProcessing,
-                    ),
+                  return VerificationRequestCard(
+                    request: request,
+                    onRefresh: _loadData,
                   );
                 },
                 childCount: _pendingExports.length + _pendingImports.length,
@@ -307,28 +297,12 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
   }
 
   void _showRequestDetail(PendingRequest request) {
-    showDialog(
-      context: context,
-      builder: (context) => RequestDetailDialog(
-        type: request.type,
-        trailerNumber: request.trailerNumber,
-        entityName: request.entityName,
-        country: request.country,
-        transporter: request.transporter,
-        date: request.date.toString().split(' ')[0],
-        status: request.status,
-        approvalStatus: request.approvalStatus,
-        createdByName: request.createdByName,
-        showApprovalButtons: request.isPending,
-        onApprove: () {
-          Navigator.pop(context);
-          _handleApprove(request);
-        },
-        onReject: () {
-          Navigator.pop(context);
-          _handleReject(request);
-        },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommandVerificationScreen(request: request),
       ),
-    );
+    ).then((_) =>
+        _loadData()); // Reload data when returning from verification screen
   }
 }

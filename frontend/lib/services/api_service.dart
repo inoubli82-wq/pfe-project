@@ -206,18 +206,25 @@ class ApiService {
     required int requestId,
     required String decision,
     String? reason,
+    Map<String, dynamic>? extraData,
   }) async {
     try {
       final headers = await _getHeaders();
+      final body = {
+        'requestType': requestType,
+        'requestId': requestId,
+        'decision': decision,
+        'reason': reason,
+      };
+
+      if (extraData != null) {
+        body.addAll(extraData);
+      }
+
       final response = await http.post(
         Uri.parse('$baseUrl/notifications/decision'),
         headers: headers,
-        body: json.encode({
-          'requestType': requestType,
-          'requestId': requestId,
-          'decision': decision,
-          'reason': reason,
-        }),
+        body: json.encode(body),
       );
       return json.decode(response.body);
     } catch (e) {

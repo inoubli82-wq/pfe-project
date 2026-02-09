@@ -2,6 +2,8 @@
 // NOTIFICATIONS SCREEN
 // ===========================================
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:import_export_app/models/notification_model.dart';
 import 'package:import_export_app/models/user_model.dart';
@@ -11,7 +13,7 @@ import 'package:import_export_app/widgets/widgets.dart';
 class NotificationsScreen extends StatefulWidget {
   final User user;
 
-  const NotificationsScreen({Key? key, required this.user}) : super(key: key);
+  const NotificationsScreen({super.key, required this.user});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -21,11 +23,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   List<NotificationModel> _notifications = [];
   bool _isLoading = true;
   int _unreadCount = 0;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadNotifications();
+    // Rafraîchir automatiquement toutes les 30 secondes
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _loadNotificationsQuietly();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  // Charger les notifications sans afficher le loading
+  Future<void> _loadNotificationsQuietly() async {
+    final response = await ApiService.getNotifications();
+
+    if (response['success'] == true && mounted) {
+      setState(() {
+        _notifications = (response['notifications'] as List?)
+                ?.map((n) => NotificationModel.fromJson(n))
+                .toList() ??
+            [];
+        _unreadCount = response['unreadCount'] ?? 0;
+      });
+    }
   }
 
   Future<void> _loadNotifications() async {
@@ -33,7 +61,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     final response = await ApiService.getNotifications();
 
-    if (response['success'] == true) {
+    if (response['success'] == true && mounted) {
       setState(() {
         _notifications = (response['notifications'] as List?)
                 ?.map((n) => NotificationModel.fromJson(n))
@@ -43,14 +71,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       });
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _markAsRead(NotificationModel notification) async {
     if (notification.isRead) return;
 
     await ApiService.markNotificationAsRead(notification.id);
-    _loadNotifications();
+    _loadNotificationsQuietly();
   }
 
   Future<void> _markAllAsRead() async {
@@ -61,7 +91,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (response['success'] == true) {
       AppSnackBar.showSuccess(
           context, 'Toutes les notifications marquées comme lues');
-      _loadNotifications();
+      _loadNotificationsQuietly();
     }
   }
 

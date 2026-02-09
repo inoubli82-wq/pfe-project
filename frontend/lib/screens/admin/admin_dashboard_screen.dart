@@ -13,7 +13,7 @@ import 'package:import_export_app/widgets/widgets.dart';
 class AdminDashboardScreen extends StatefulWidget {
   final User user;
 
-  const AdminDashboardScreen({Key? key, required this.user}) : super(key: key);
+  const AdminDashboardScreen({super.key, required this.user});
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();

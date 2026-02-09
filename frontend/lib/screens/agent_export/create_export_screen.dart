@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../services/api_service.dart';
+
 class CreateExportPage extends StatefulWidget {
   const CreateExportPage({super.key});
 
@@ -17,6 +19,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
   String? _selectedTransporter;
   int _barsCount = 0;
   int _singlesCount = 0;
+  bool _isLoading = false;
 
   final List<String> _countries = [
     '🇦🇫 Afghanistan',
@@ -229,7 +232,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
     }
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -261,29 +264,75 @@ class _CreateExportPageState extends State<CreateExportPage> {
         return;
       }
 
-      debugPrint('=== NOUVEL EXPORT ===');
-      debugPrint('Numéro de remorque: ${_trailerNumberController.text}');
-      debugPrint('Date d\'embarquement: $_selectedDate');
-      debugPrint('Nom du client: ${_clientNameController.text}');
-      debugPrint('Pays: $_selectedCountry');
-      debugPrint('Transporteur: $_selectedTransporter');
-      debugPrint('Nombre de barres: $_barsCount');
-      debugPrint('Nombre de singles: $_singlesCount');
+      // Afficher loading
+      setState(() => _isLoading = true);
 
-      if (!mounted) return;
+      try {
+        // Formater la date au format ISO
+        final formattedDate = _selectedDate!.toIso8601String().split('T')[0];
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Export créé avec succès !'),
-          backgroundColor: Color(0xFF0C44A6),
-          duration: Duration(seconds: 2),
-        ),
-      );
+        // Extraire le nom du pays sans le drapeau emoji
+        final countryName = _selectedCountry!.substring(4).trim();
 
-      Future.delayed(const Duration(seconds: 2), () {
+        debugPrint('=== NOUVEL EXPORT ===');
+        debugPrint('Numéro de remorque: ${_trailerNumberController.text}');
+        debugPrint('Date d\'embarquement: $formattedDate');
+        debugPrint('Nom du client: ${_clientNameController.text}');
+        debugPrint('Pays: $countryName');
+        debugPrint('Transporteur: $_selectedTransporter');
+        debugPrint('Nombre de barres: $_barsCount');
+        debugPrint('Nombre de singles: $_singlesCount');
+
+        // Appeler l'API
+        final response = await ApiService.createExport(
+          trailerNumber: _trailerNumberController.text.trim(),
+          date: formattedDate,
+          clientName: _clientNameController.text.trim(),
+          country: countryName,
+          transporter: _selectedTransporter,
+          barsCount: _barsCount,
+          singlesCount: _singlesCount,
+        );
+
         if (!mounted) return;
-        Navigator.pop(context);
-      });
+
+        if (response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Export créé avec succès !'),
+              backgroundColor: Color(0xFF4CAF50),
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          Future.delayed(const Duration(seconds: 1), () {
+            if (!mounted) return;
+            Navigator.pop(
+                context, true); // Retourner true pour rafraîchir la liste
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text(response['message'] ?? 'Erreur lors de la création'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('❌ Erreur création export: $e');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur de connexion au serveur'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -754,10 +803,12 @@ class _CreateExportPageState extends State<CreateExportPage> {
                         width: double.infinity,
                         height: 56.0,
                         child: ElevatedButton(
-                          onPressed: _submitForm,
+                          onPressed: _isLoading ? null : _submitForm,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF38A169),
                             foregroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                const Color(0xFF38A169).withOpacity(0.6),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0),
                             ),
@@ -765,14 +816,23 @@ class _CreateExportPageState extends State<CreateExportPage> {
                             shadowColor:
                                 const Color(0xFF0C44A6).withOpacity(0.5),
                           ),
-                          child: const Text(
-                            'Confirmer la création',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  'Confirmer la création',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
                         ),
                       ),
                     ],

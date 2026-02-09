@@ -12,7 +12,7 @@ import 'package:import_export_app/widgets/widgets.dart';
 class ImportDashboardScreen extends StatefulWidget {
   final User user;
 
-  const ImportDashboardScreen({Key? key, required this.user}) : super(key: key);
+  const ImportDashboardScreen({super.key, required this.user});
 
   @override
   State<ImportDashboardScreen> createState() => _ImportDashboardScreenState();

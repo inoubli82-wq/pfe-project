@@ -14,13 +14,13 @@ class DashboardHeader extends StatelessWidget {
   final Color? backgroundColor;
 
   const DashboardHeader({
-    Key? key,
+    super.key,
     required this.user,
     required this.onLogout,
     this.notificationCount = 0,
     this.onNotificationTap,
     this.backgroundColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

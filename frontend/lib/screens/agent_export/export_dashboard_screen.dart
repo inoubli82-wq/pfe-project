@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:import_export_app/models/user_model.dart';
 import 'package:import_export_app/screens/agent_export/create_export_screen.dart';
+import 'package:import_export_app/screens/agent_export/track_export_screen.dart';
 import 'package:import_export_app/screens/common/login_screen.dart';
 import 'package:import_export_app/screens/common/notifications_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
@@ -13,7 +14,7 @@ import 'package:import_export_app/widgets/widgets.dart';
 class ExportDashboardScreen extends StatefulWidget {
   final User user;
 
-  const ExportDashboardScreen({Key? key, required this.user}) : super(key: key);
+  const ExportDashboardScreen({super.key, required this.user});
 
   @override
   State<ExportDashboardScreen> createState() => _ExportDashboardScreenState();
@@ -108,7 +109,12 @@ class _ExportDashboardScreenState extends State<ExportDashboardScreen> {
                           subtitle: '',
                           icon: Icons.track_changes,
                           color: Colors.green,
-                          onTap: () => _showTrackingDialog(context),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TrackExportScreen(),
+                            ),
+                          ),
                         ),
                       ],
                     ),

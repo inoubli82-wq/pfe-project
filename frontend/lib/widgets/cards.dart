@@ -16,13 +16,13 @@ class StatsCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const StatsCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.icon,
     required this.color,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +97,7 @@ class RequestCard extends StatelessWidget {
   final Widget? trailing;
 
   const RequestCard({
-    Key? key,
+    super.key,
     required this.type,
     required this.trailerNumber,
     required this.entityName,
@@ -108,7 +108,7 @@ class RequestCard extends StatelessWidget {
     this.createdByName,
     this.onTap,
     this.trailing,
-  }) : super(key: key);
+  });
 
   Color get _typeColor => type == 'export' ? Colors.green : Colors.blue;
 
@@ -278,7 +278,7 @@ class NotificationCard extends StatelessWidget {
   final VoidCallback? onDismiss;
 
   const NotificationCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.message,
     required this.type,
@@ -287,7 +287,7 @@ class NotificationCard extends StatelessWidget {
     this.actionRequired = false,
     this.onTap,
     this.onDismiss,
-  }) : super(key: key);
+  });
 
   IconData get _icon {
     switch (type) {
@@ -465,10 +465,10 @@ class RoleBadge extends StatelessWidget {
   final Color? color;
 
   const RoleBadge({
-    Key? key,
+    super.key,
     required this.role,
     this.color,
-  }) : super(key: key);
+  });
 
   Color get _color {
     if (color != null) return color!;
