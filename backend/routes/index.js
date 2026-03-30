@@ -5,6 +5,7 @@
 const authRoutes = require("./authRoutes");
 const adminRoutes = require("./adminRoutes");
 const exportRoutes = require("./exportRoutes");
+const partnerExportRoutes = require("./partnerExportRoutes");
 const importRoutes = require("./importRoutes");
 const notificationRoutes = require("./notificationRoutes");
 
@@ -21,6 +22,9 @@ const registerRoutes = (app) => {
 
   // Export routes
   app.use("/api/exports", exportRoutes);
+
+  // Partner Export routes
+  app.use("/api/export-data", partnerExportRoutes);
 
   // Import routes
   app.use("/api/imports", importRoutes);

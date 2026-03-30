@@ -186,6 +186,28 @@ async function createTables() {
     )
   `);
 
+  // Partenaire Export Data Table
+  await query(`
+    CREATE TABLE IF NOT EXISTS partenaire_export_data (
+      id SERIAL PRIMARY KEY,
+      trailer_number VARCHAR(100) NOT NULL,
+      embarkation_date DATE NOT NULL,
+      client_name VARCHAR(255) NOT NULL,
+      number_of_bars INTEGER DEFAULT 0,
+      number_of_straps INTEGER DEFAULT 0,
+      number_of_suction_cups INTEGER DEFAULT 0,
+      status VARCHAR(50) DEFAULT 'created' CHECK (status IN ('created', 'submitted', 'approved', 'rejected', 'completed')),
+      approval_status VARCHAR(50) DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
+      notes TEXT,
+      created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      approved_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      approved_at TIMESTAMP,
+      rejection_reason TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Add missing columns to existing tables (migrations)
   console.log("   🔄 Running migrations for approval workflow...");
 
@@ -233,6 +255,17 @@ async function createTables() {
   );
   await query(
     `CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read)`,
+  );
+
+  // Partenaire export data indexes
+  await query(
+    `CREATE INDEX IF NOT EXISTS idx_partenaire_export_trailer ON partenaire_export_data(trailer_number)`,
+  );
+  await query(
+    `CREATE INDEX IF NOT EXISTS idx_partenaire_export_status ON partenaire_export_data(status)`,
+  );
+  await query(
+    `CREATE INDEX IF NOT EXISTS idx_partenaire_export_created_by ON partenaire_export_data(created_by)`,
   );
 
   // Try to create approval indexes (may fail if columns don't exist yet)

@@ -3,15 +3,14 @@
 // ===========================================
 
 import 'package:flutter/material.dart';
-import 'package:import_export_app/models/notification_model.dart';
 import 'package:import_export_app/models/user_model.dart';
 import 'package:import_export_app/screens/common/login_screen.dart';
 import 'package:import_export_app/screens/common/notifications_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
 import 'package:import_export_app/widgets/widgets.dart';
 
-import 'command_verification_screen.dart';
-import 'verification_request_card.dart';
+import 'partner_export_screen.dart';
+import 'partner_import_suivi_screen.dart';
 
 class PartenaireDashboardScreen extends StatefulWidget {
   final User user;
@@ -24,11 +23,8 @@ class PartenaireDashboardScreen extends StatefulWidget {
 }
 
 class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
+  bool _isLoading = false;
   int _unreadCount = 0;
-  List<PendingRequest> _pendingExports = [];
-  List<PendingRequest> _pendingImports = [];
-  bool _isLoading = true;
-  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -38,10 +34,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    await Future.wait([
-      _loadUnreadCount(),
-      _loadPendingRequests(),
-    ]);
+    await _loadUnreadCount();
     setState(() => _isLoading = false);
   }
 
@@ -49,73 +42,6 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     final response = await ApiService.getUnreadCount();
     if (response['success'] == true) {
       setState(() => _unreadCount = response['unreadCount'] ?? 0);
-    }
-  }
-
-  Future<void> _loadPendingRequests() async {
-    final response = await ApiService.getPendingRequests();
-    if (response['success'] == true) {
-      setState(() {
-        _pendingExports = (response['pendingExports'] as List?)
-                ?.map((e) => PendingRequest.fromJson(e, 'export'))
-                .toList() ??
-            [];
-        _pendingImports = (response['pendingImports'] as List?)
-                ?.map((e) => PendingRequest.fromJson(e, 'import'))
-                .toList() ??
-            [];
-      });
-    }
-  }
-
-  Future<void> _handleApprove(PendingRequest request) async {
-    final confirmed = await ConfirmationDialog.show(
-      context: context,
-      title: 'Approuver la demande',
-      message:
-          'Êtes-vous sûr de vouloir approuver cette demande ${request.typeDisplayName.toLowerCase()} ?',
-      confirmText: 'Approuver',
-      confirmColor: Colors.green,
-    );
-
-    if (confirmed == true) {
-      await _processDecision(request, 'approved');
-    }
-  }
-
-  Future<void> _handleReject(PendingRequest request) async {
-    final reason = await RejectionReasonDialog.show(context);
-    if (reason != null && reason.isNotEmpty) {
-      await _processDecision(request, 'rejected', reason: reason);
-    }
-  }
-
-  Future<void> _processDecision(PendingRequest request, String decision,
-      {String? reason}) async {
-    setState(() => _isProcessing = true);
-
-    final response = await ApiService.handleDecision(
-      requestType: request.type,
-      requestId: request.id,
-      decision: decision,
-      reason: reason,
-    );
-
-    setState(() => _isProcessing = false);
-
-    if (!mounted) return;
-
-    if (response['success'] == true) {
-      AppSnackBar.showSuccess(
-        context,
-        decision == 'approved' ? 'Demande approuvée' : 'Demande refusée',
-      );
-      _loadData();
-    } else {
-      AppSnackBar.showError(
-        context,
-        response['message'] ?? 'Erreur lors du traitement',
-      );
     }
   }
 
@@ -130,8 +56,6 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final totalPending = _pendingExports.length + _pendingImports.length;
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -182,7 +106,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
                       ? const Center(child: CircularProgressIndicator())
                       : RefreshIndicator(
                           onRefresh: _loadData,
-                          child: _buildContent(totalPending),
+                          child: _buildContent(),
                         ),
                 ),
               ),
@@ -193,116 +117,140 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     );
   }
 
-  Widget _buildContent(int totalPending) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Role Badge
-                Center(
-                  child: RoleBadge(role: User.roleToString(widget.user.role)),
-                ),
-                const SizedBox(height: 20),
-
-                // Pending Requests Section
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Demandes en attente',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: totalPending > 0
-                            ? Colors.orange.withOpacity(0.2)
-                            : Colors.green.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '$totalPending en attente',
-                        style: TextStyle(
-                          color:
-                              totalPending > 0 ? Colors.orange : Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+  Widget _buildContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Role Badge
+          Center(
+            child: RoleBadge(role: User.roleToString(widget.user.role)),
           ),
+          const SizedBox(height: 24),
+
+          // Action Buttons Section
+          _buildActionButtons(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        // Suivi Import Button
+        _buildActionCard(
+          icon: Icons.track_changes,
+          title: 'Suivi Import',
+          description: 'Consulter l\'historique et le statut de vos imports',
+          iconColor: const Color(0xFF4CAF50),
+          gradientColors: const [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PartnerImportSuiviScreen(user: widget.user),
+              ),
+            );
+          },
         ),
-
-        // Pending Requests List
-        if (totalPending == 0)
-          const SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    size: 80,
-                    color: Colors.green,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Aucune demande en attente',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
+        const SizedBox(height: 12),
+        // Create Export Button
+        _buildActionCard(
+          icon: Icons.add_circle_outline,
+          title: 'Créer un Export',
+          description: 'Créer un nouveau document d\'export partenaire',
+          iconColor: const Color(0xFF2196F3),
+          gradientColors: const [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PartnerExportScreen(),
               ),
-            ),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final allRequests = [..._pendingExports, ..._pendingImports];
-                  final request = allRequests[index];
-                  return VerificationRequestCard(
-                    request: request,
-                    onRefresh: _loadData,
-                  );
-                },
-                childCount: _pendingExports.length + _pendingImports.length,
-              ),
-            ),
-          ),
-
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 20),
+            );
+          },
         ),
       ],
     );
   }
 
-  void _showRequestDetail(PendingRequest request) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CommandVerificationScreen(request: request),
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color iconColor,
+    required List<Color> gradientColors,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-    ).then((_) =>
-        _loadData()); // Reload data when returning from verification screen
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: gradientColors,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  size: 28,
+                  color: iconColor,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 18,
+                color: iconColor,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

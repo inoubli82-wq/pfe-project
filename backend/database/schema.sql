@@ -106,6 +106,29 @@ CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX IF NOT EXISTS idx_notifications_reference ON notifications(reference_type, reference_id);
 
 -- ===========================================
+-- PARTENAIRE EXPORT DATA TABLE
+-- ===========================================
+CREATE TABLE IF NOT EXISTS partenaire_export_data (
+    id SERIAL PRIMARY KEY,
+    trailer_number VARCHAR(100) NOT NULL,
+    embarkation_date DATE NOT NULL,
+    client_name VARCHAR(255) NOT NULL,
+    number_of_bars INTEGER DEFAULT 0,
+    number_of_straps INTEGER DEFAULT 0,
+    number_of_suction_cups INTEGER DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'created' CHECK (status IN ('created', 'submitted', 'approved', 'rejected', 'completed')),
+    notes TEXT,
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for partenaire export data
+CREATE INDEX IF NOT EXISTS idx_partenaire_export_trailer ON partenaire_export_data(trailer_number);
+CREATE INDEX IF NOT EXISTS idx_partenaire_export_status ON partenaire_export_data(status);
+CREATE INDEX IF NOT EXISTS idx_partenaire_export_created_by ON partenaire_export_data(created_by);
+
+-- ===========================================
 -- FUNCTION TO UPDATE updated_at TIMESTAMP
 -- ===========================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -134,6 +157,12 @@ CREATE TRIGGER update_exports_updated_at
 DROP TRIGGER IF EXISTS update_imports_updated_at ON imports;
 CREATE TRIGGER update_imports_updated_at
     BEFORE UPDATE ON imports
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_partenaire_export_updated_at ON partenaire_export_data;
+CREATE TRIGGER update_partenaire_export_updated_at
+    BEFORE UPDATE ON partenaire_export_data
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
