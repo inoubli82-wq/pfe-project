@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:http/http.dart' as http;
+import 'package:import_export_app/models/export_data.dart';
+import 'package:import_export_app/models/agent_export_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
@@ -235,33 +237,16 @@ class ApiService {
 
   // ========== EXPORTS ==========
 
-  static Future<Map<String, dynamic>> createExport({
-    required String trailerNumber,
-    required String date,
-    required String clientName,
-    required String country,
-    String? transporter,
-    int? barsCount,
-    int? singlesCount,
-    String? notes,
-  }) async {
+  static Future<Map<String, dynamic>> createExport(
+      AgentExportData exportData) async {
     try {
       final headers = await _getHeaders();
       final response = await http.post(
         Uri.parse('$baseUrl/exports'),
         headers: headers,
-        body: json.encode({
-          'trailerNumber': trailerNumber,
-          'date': date,
-          'clientName': clientName,
-          'country': country,
-          'transporter': transporter,
-          'barsCount': barsCount ?? 0,
-          'singlesCount': singlesCount ?? 0,
-          'notes': notes,
-        }),
+        body: jsonEncode(exportData.toJson()),
       );
-      return json.decode(response.body);
+      return jsonDecode(response.body);
     } catch (e) {
       debugPrint('❌ Erreur création export: $e');
       return {'success': false, 'message': 'Erreur serveur'};
@@ -275,7 +260,17 @@ class ApiService {
         Uri.parse('$baseUrl/exports'),
         headers: headers,
       );
-      return json.decode(response.body);
+      final data = jsonDecode(response.body);
+      if (data['success'] == true && data['exports'] != null) {
+        final exports = (data['exports'] as List)
+            .map((item) => AgentExportData.fromJson(item))
+            .toList();
+        return {
+          'success': true,
+          'exports': exports,
+        };
+      }
+      return data;
     } catch (e) {
       debugPrint('❌ Erreur récupération exports: $e');
       return {'success': false, 'message': 'Erreur serveur'};
@@ -355,6 +350,101 @@ class ApiService {
       return json.decode(response.body);
     } catch (e) {
       debugPrint('❌ Erreur récupération utilisateurs: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  // ========== PARTENAIRE EXPORTS ==========
+
+  static Future<Map<String, dynamic>> createExportData(
+      ExportData exportData) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/export-data'),
+        headers: headers,
+        body: jsonEncode(exportData.toJson()),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur création export data: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getAllExportData() async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/export-data'),
+        headers: headers,
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] == true && data['data'] != null) {
+        final exports = (data['data'] as List)
+            .map((item) => ExportData.fromJson(item))
+            .toList();
+        return {
+          'success': true,
+          'data': exports,
+        };
+      }
+      return data;
+    } catch (e) {
+      debugPrint('❌ Erreur récupération export data: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getExportDataById(int id) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/export-data/$id'),
+        headers: headers,
+      );
+      final data = jsonDecode(response.body);
+      if (data['success'] == true && data['data'] != null) {
+        return {
+          'success': true,
+          'data': ExportData.fromJson(data['data']),
+        };
+      }
+      return data;
+    } catch (e) {
+      debugPrint('❌ Erreur récupération export data: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateExportData(
+    int id,
+    ExportData exportData,
+  ) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.put(
+        Uri.parse('$baseUrl/export-data/$id'),
+        headers: headers,
+        body: jsonEncode(exportData.toJson()),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur mise à jour export data: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> deleteExportData(int id) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/export-data/$id'),
+        headers: headers,
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur suppression export data: $e');
       return {'success': false, 'message': 'Erreur serveur'};
     }
   }

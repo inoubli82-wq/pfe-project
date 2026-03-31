@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:import_export_app/models/notification_model.dart'; // Reusing PendingRequest model which fits well
+import 'package:import_export_app/models/agent_export_data.dart';
 import 'package:import_export_app/services/api_service.dart';
-import 'package:import_export_app/widgets/widgets.dart';
 
 class TrackExportScreen extends StatefulWidget {
   const TrackExportScreen({super.key});
@@ -12,7 +11,7 @@ class TrackExportScreen extends StatefulWidget {
 
 class _TrackExportScreenState extends State<TrackExportScreen> {
   bool _isLoading = true;
-  List<PendingRequest> _exports = [];
+  List<AgentExportData> _exports = [];
 
   @override
   void initState() {
@@ -24,12 +23,11 @@ class _TrackExportScreenState extends State<TrackExportScreen> {
     setState(() => _isLoading = true);
     try {
       final response = await ApiService.getExports();
-      if (response['success'] == true) {
+      if (response['success'] == true && response['exports'] != null) {
         final List<dynamic> data = response['exports'] ?? [];
         if (mounted) {
           setState(() {
-            _exports =
-                data.map((e) => PendingRequest.fromJson(e, 'export')).toList();
+            _exports = data.map((e) => e as AgentExportData).toList();
             _isLoading = false;
           });
         }
@@ -81,19 +79,93 @@ class _TrackExportScreenState extends State<TrackExportScreen> {
                         const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final export = _exports[index];
-                      return RequestCard(
-                        type: 'export',
-                        trailerNumber: export.trailerNumber,
-                        entityName: export.entityName,
-                        country: export.country,
-                        date: export.date,
-                        status: export.status,
-                        approvalStatus: export.approvalStatus,
-                        createdByName: export.createdByName,
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Remorque: ${export.trailerNumber}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Créé',
+                                      style: TextStyle(
+                                        color: Colors.green[700],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              _buildExportRow('Client', export.clientName),
+                              _buildExportRow('Pays', export.country),
+                              _buildExportRow(
+                                  'Date', export.date.toString().split(' ')[0]),
+                              _buildExportRow(
+                                  'Barres', export.barsCount.toString()),
+                              _buildExportRow(
+                                  'Singles', export.singlesCount.toString()),
+                              if (export.transporter != null)
+                                _buildExportRow(
+                                    'Transporteur', export.transporter!),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),
                 ),
+    );
+  }
+
+  Widget _buildExportRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

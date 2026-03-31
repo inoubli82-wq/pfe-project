@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/api_service.dart';
+import '../../models/agent_export_data.dart';
 
 class CreateExportPage extends StatefulWidget {
   const CreateExportPage({super.key});
@@ -283,16 +284,19 @@ class _CreateExportPageState extends State<CreateExportPage> {
         debugPrint('Nombre de barres: $_barsCount');
         debugPrint('Nombre de singles: $_singlesCount');
 
-        // Appeler l'API
-        final response = await ApiService.createExport(
+        // Créer un objet AgentExportData
+        final exportData = AgentExportData(
           trailerNumber: _trailerNumberController.text.trim(),
-          date: formattedDate,
+          date: _selectedDate!,
           clientName: _clientNameController.text.trim(),
           country: countryName,
           transporter: _selectedTransporter,
           barsCount: _barsCount,
           singlesCount: _singlesCount,
         );
+
+        // Appeler l'API
+        final response = await ApiService.createExport(exportData);
 
         if (!mounted) return;
 

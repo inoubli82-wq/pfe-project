@@ -3,15 +3,14 @@
 // ===========================================
 
 import 'package:flutter/material.dart';
-import 'package:import_export_app/models/notification_model.dart';
 import 'package:import_export_app/models/user_model.dart';
 import 'package:import_export_app/screens/common/login_screen.dart';
 import 'package:import_export_app/screens/common/notifications_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
 import 'package:import_export_app/widgets/widgets.dart';
 
-import 'command_verification_screen.dart';
-import 'verification_request_card.dart';
+import 'partner_export_screen.dart';
+import 'partner_import_suivi_screen.dart';
 
 class PartenaireDashboardScreen extends StatefulWidget {
   final User user;
@@ -24,11 +23,8 @@ class PartenaireDashboardScreen extends StatefulWidget {
 }
 
 class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
+  bool _isLoading = false;
   int _unreadCount = 0;
-  List<PendingRequest> _pendingExports = [];
-  List<PendingRequest> _pendingImports = [];
-  bool _isLoading = true;
-  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -38,10 +34,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    await Future.wait([
-      _loadUnreadCount(),
-      _loadPendingRequests(),
-    ]);
+    await _loadUnreadCount();
     setState(() => _isLoading = false);
   }
 
@@ -52,93 +45,12 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     }
   }
 
-  Future<void> _loadPendingRequests() async {
-    final response = await ApiService.getPendingRequests();
-    if (response['success'] == true) {
-      setState(() {
-        _pendingExports = (response['pendingExports'] as List?)
-                ?.map((e) => PendingRequest.fromJson(e, 'export'))
-                .toList() ??
-            [];
-        _pendingImports = (response['pendingImports'] as List?)
-                ?.map((e) => PendingRequest.fromJson(e, 'import'))
-                .toList() ??
-            [];
-      });
-    }
-  }
-
-  Future<void> _handleApprove(PendingRequest request) async {
-    final confirmed = await ConfirmationDialog.show(
-      context: context,
-      title: 'Approuver la demande',
-      message:
-          'Êtes-vous sûr de vouloir approuver cette demande ${request.typeDisplayName.toLowerCase()} ?',
-      confirmText: 'Approuver',
-      confirmColor: Colors.green,
-    );
-
-    if (confirmed == true) {
-      await _processDecision(request, 'approved');
-    }
-  }
-
-  Future<void> _handleReject(PendingRequest request) async {
-    final reason = await RejectionReasonDialog.show(context);
-    if (reason != null && reason.isNotEmpty) {
-      await _processDecision(request, 'rejected', reason: reason);
-    }
-  }
-
-  Future<void> _processDecision(PendingRequest request, String decision,
-      {String? reason}) async {
-    setState(() => _isProcessing = true);
-
-    final response = await ApiService.handleDecision(
-      requestType: request.type,
-      requestId: request.id,
-      decision: decision,
-      reason: reason,
-    );
-
-    setState(() => _isProcessing = false);
-
-    if (!mounted) return;
-
-    if (response['success'] == true) {
-      AppSnackBar.showSuccess(
-        context,
-        decision == 'approved' ? 'Demande approuvée' : 'Demande refusée',
-      );
-      _loadData();
-    } else {
-      AppSnackBar.showError(
-        context,
-        response['message'] ?? 'Erreur lors du traitement',
-      );
-    }
-  }
-
   void _logout() async {
     await ApiService.logout();
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
-  }
-
-  void _navigateToSuiviImport() {
-    // Navigation vers la page de suivi import
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navigation vers Suivi Import')),
-    );
-  }
-
-  void _navigateToCreationExport() {
-    // Navigation vers la page de création export
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navigation vers Création Export')),
     );
   }
 
@@ -159,53 +71,33 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header simplifié
-              _buildSimpleHeader(),
+              // Header
+              _buildHeader(),
 
               // Main Content
               Expanded(
-                child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Column(
-                    children: [
-                      // Message de bienvenue
-                      _buildWelcomeMessage(),
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : RefreshIndicator(
+                        onRefresh: _loadData,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          child: Column(
+                            children: [
+                              // Welcome Message
+                              _buildWelcomeMessage(),
 
-                      const SizedBox(height: 32),
+                              const SizedBox(height: 32),
 
-                      // Carte Suivi Import
-                      _buildActionCard(
-                        title: 'Suivi Import',
-                        subtitle:
-                            'Suivre les conteneurs reçus et vérifier les données',
-                        icon: Icons.import_export,
-                        iconColor: Colors.blue,
-                        onTap: _navigateToSuiviImport,
+                              // Action Buttons
+                              _buildActionButtons(),
+
+                              const SizedBox(height: 32),
+                            ],
+                          ),
+                        ),
                       ),
-
-                      const SizedBox(height: 20),
-
-                      // Carte Création Export
-                      _buildActionCard(
-                        title: 'Création Export',
-                        subtitle:
-                            'Créer un nouveau export et saisir les informations',
-                        icon: Icons.add_circle_outline,
-                        iconColor: Colors.green,
-                        buttonText: 'Créer',
-                        onTap: _navigateToCreationExport,
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Section demandes en attente (optionnelle)
-                      if (_pendingExports.isNotEmpty ||
-                          _pendingImports.isNotEmpty)
-                        _buildPendingRequestsSection(),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),
@@ -214,7 +106,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     );
   }
 
-  Widget _buildSimpleHeader() {
+  Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
@@ -253,7 +145,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
             ],
           ),
 
-          // Icône de notification
+          // Notification Icon
           Stack(
             children: [
               IconButton(
@@ -346,154 +238,39 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     );
   }
 
-  Widget _buildActionCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color iconColor,
-    String? buttonText,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Icône
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: iconColor,
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            // Texte
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E2A3A),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Bouton d'action
-            if (buttonText != null)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: Text(
-                  buttonText,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            else
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 20,
-                color: Colors.grey,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPendingRequestsSection() {
-    final totalPending = _pendingExports.length + _pendingImports.length;
-
+  Widget _buildActionButtons() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
-        const Divider(color: Colors.white24),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Demandes en attente',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        // Suivi Import Button
+        _buildActionCard(
+          icon: Icons.track_changes,
+          title: 'Suivi Import',
+          description: 'Consulter l\'historique et le statut de vos imports',
+          iconColor: const Color(0xFF4CAF50),
+          gradientColors: const [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PartnerImportSuiviScreen(user: widget.user),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: totalPending > 0
-                    ? Colors.orange.withOpacity(0.2)
-                    : Colors.green.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '$totalPending en attente',
-                style: TextStyle(
-                  color: totalPending > 0 ? Colors.orange : Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
+            );
+          },
         ),
-        const SizedBox(height: 16),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _pendingExports.length + _pendingImports.length,
-          itemBuilder: (context, index) {
-            final allRequests = [..._pendingExports, ..._pendingImports];
-            final request = allRequests[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: VerificationRequestCard(
-                request: request,
-                onRefresh: _loadData,
+        const SizedBox(height: 12),
+        // Create Export Button
+        _buildActionCard(
+          icon: Icons.add_circle_outline,
+          title: 'Créer un Export',
+          description: 'Créer un nouveau document d\'export partenaire',
+          iconColor: const Color(0xFF2196F3),
+          gradientColors: const [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PartnerExportScreen(),
               ),
             );
           },
@@ -502,12 +279,80 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     );
   }
 
-  void _showRequestDetail(PendingRequest request) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CommandVerificationScreen(request: request),
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color iconColor,
+    required List<Color> gradientColors,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-    ).then((_) => _loadData());
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: gradientColors,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  size: 28,
+                  color: iconColor,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 18,
+                color: iconColor,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
