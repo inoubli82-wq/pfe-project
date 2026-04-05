@@ -15,6 +15,7 @@ dependencies:
 
   # Networking
   dio: ^5.4.1
+  http: ^1.2.0
   connectivity_plus: ^6.0.2
 
   # Local Storage

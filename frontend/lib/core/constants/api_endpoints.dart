@@ -68,6 +68,16 @@ class ApiEndpoints {
   static const String partnerRequests = '/partner/requests';
   static const String partnerVerify = '/partner/verify';
   static const String partnerHistory = '/partner/history';
+  static const String partnerDetails = '/partner/details'; // + /{id}
+  static const String partnerUpdate = '/partner/update'; // + /{id}
+  static const String partnerDelete = '/partner/delete'; // + /{id}
+  static const String partnerCreate = '/partner/create';
+  static const String partnerList = '/partner/list';
+  static const String partnerSearch = '/partner/search';
+  static const String partnerStats = '/partner/stats';
+  static const String partnerNotifications = '/partner/notifications';
+  static const String partnerDashboard = '/partner/dashboard';
+  static const String partnerExport = '/partner/export_data'; // + /{id}
 
   // ==================== HELPER METHODS ====================
 

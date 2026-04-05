@@ -127,23 +127,4 @@ class _ExportDashboardScreenState extends State<ExportDashboardScreen> {
       ),
     );
   }
-
-  void _showTrackingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Suivi Export'),
-        content: const Text('Cette fonctionnalité sera bientôt disponible.'),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
 }

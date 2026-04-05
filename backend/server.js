@@ -1,5 +1,3 @@
-
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -51,6 +49,7 @@ app.get("/", async (req, res) => {
         admin: "/api/admin",
         exports: "/api/exports",
         imports: "/api/imports",
+        partenaires: "/api/partenaires",
       },
     });
   } catch (error) {
@@ -80,9 +79,7 @@ app.get("/api/test", async (req, res) => {
   }
 });
 
-
 registerRoutes(app);
-
 
 // 404 handler
 app.use((req, res) => {
@@ -105,12 +102,11 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ==============================================
 app.listen(PORT, () => {
- 
   console.log(`📡 Port: ${PORT}`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log(`🗄️  Database: PostgreSQL`);
   console.log("");
- 
+
   console.log("📋 SETUP:");
   console.log("   1. Create database: createdb pfe_import_export");
   console.log("   2. Initialize: npm run db:init");

@@ -11,11 +11,6 @@ class Validators {
     r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+',
   );
 
-  /// Phone validation regex (allows various formats)
-  static final RegExp _phoneRegex = RegExp(
-    r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$',
-  );
-
   /// Validate required field
   static String? required(String? value, [String? fieldName]) {
     if (value == null || value.trim().isEmpty) {

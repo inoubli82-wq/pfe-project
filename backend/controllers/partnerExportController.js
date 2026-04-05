@@ -3,9 +3,11 @@
 // ==============================================
 
 const { query } = require("../config/database");
-const { validateTrailerNumber, validateClientName, validateCounts, validateDateRange } = require("../utils/validation");
-const { apiError, validationError } = require("../utils/errorHandler");
-const { notifyPartnerExportCreated, notifyApprovalDecision } = require("../utils/notificationService");
+const { validateRequiredFields } = require("../utils/validation");
+const {
+  notifyPartnerExportCreated,
+  notifyApprovalDecision,
+} = require("../utils/notificationService");
 
 /**
  * Create a new partner export
@@ -23,32 +25,13 @@ const createExportData = async (req, res) => {
     } = req.body;
     const userId = req.user.id;
 
-    // Validate required fields
+    // Validate required fields (Vérification simple)
     if (!trailerNumber || !clientName || !embarkationDate) {
-      return res.status(400).json(
-        validationError(
-          "required_fields",
-          "trailerNumber, embarkationDate, and clientName are required"
-        )
-      );
-    }
-    if (!validateTrailerNumber(trailerNumber)) {
-      return res.status(400).json(validationError("trailerNumber", "Invalid trailer number format"));
-    }
-    if (!validateClientName(clientName)) {
-      return res.status(400).json(validationError("clientName", "Invalid client name"));
-    }
-    if (!validateDateRange(new Date(embarkationDate))) {
-      return res.status(400).json(validationError("embarkationDate", "Invalid embarkation date"));
-    }
-    if (
-      !validateCounts(numberOfBars) ||
-      !validateCounts(numberOfStraps) ||
-      !validateCounts(numberOfSuctionCups)
-    ) {
-      return res
-        .status(400)
-        .json(validationError("counts", "Counts must be non-negative integers"));
+      return res.status(400).json({
+        success: false,
+        message:
+          "Veuillez remplir tous les champs obligatoires (N° Remorque, Client, Date).",
+      });
     }
 
     // Insert into database
@@ -66,11 +49,14 @@ const createExportData = async (req, res) => {
         numberOfSuctionCups,
         userId,
         "pending",
-      ]
+      ],
     );
+
     const exportData = result.rows[0];
+
     // Trigger notifications asynchronously
     notifyPartnerExportCreated(exportData, userId);
+
     return res.status(201).json({
       success: true,
       message: "Export créé avec succès",
@@ -78,7 +64,11 @@ const createExportData = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Erreur création export partenaire:", error);
-    return res.status(500).json(apiError("Erreur lors de la création de l'export"));
+    // Remplacement de apiError par une réponse JSON classique
+    return res.status(500).json({
+      success: false,
+      message: "Erreur lors de la création de l'export",
+    });
   }
 };
 
@@ -90,10 +80,12 @@ const getAllExportData = async (req, res) => {
   try {
     const userId = req.user.id;
     const userType = req.user.user_type;
-    let queryText = "SELECT * FROM partenaire_export_data ORDER BY created_at DESC";
+    let queryText =
+      "SELECT * FROM partenaire_export_data ORDER BY created_at DESC";
     let params = [];
     if (userType !== "admin") {
-      queryText = "SELECT * FROM partenaire_export_data WHERE created_by = $1 ORDER BY created_at DESC";
+      queryText =
+        "SELECT * FROM partenaire_export_data WHERE created_by = $1 ORDER BY created_at DESC";
       params = [userId];
     }
     const result = await query(queryText, params);
@@ -103,7 +95,11 @@ const getAllExportData = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Erreur récupération exports partenaire:", error);
-    return res.status(500).json(apiError("Erreur lors de la récupération des exports"));
+    return res.status(500).json({
+      success: false,
+      message: "Erreur lors de la récupération des exports",
+      error: error.message,
+    });
   }
 };
 
@@ -119,12 +115,13 @@ const getExportDataById = async (req, res) => {
     let queryText = "SELECT * FROM partenaire_export_data WHERE id = $1";
     let params = [id];
     if (userType !== "admin") {
-      queryText = "SELECT * FROM partenaire_export_data WHERE id = $1 AND created_by = $2";
+      queryText =
+        "SELECT * FROM partenaire_export_data WHERE id = $1 AND created_by = $2";
       params = [id, userId];
     }
     const result = await query(queryText, params);
     if (result.rows.length === 0) {
-      return res.status(404).json(apiError("Export non trouvé", "NOT_FOUND", 404));
+      return res.status(404).json({ success: false, message: "Action failed" });
     }
     return res.json({
       success: true,
@@ -132,7 +129,7 @@ const getExportDataById = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Erreur récupération export partenaire:", error);
-    return res.status(500).json(apiError("Erreur lors de la récupération de l'export"));
+    return res.status(500).json({ success: false, message: "Action failed" });
   }
 };
 
@@ -155,20 +152,36 @@ const updateExportData = async (req, res) => {
     const userType = req.user.user_type;
     // Verify ownership
     if (userType !== "admin") {
-      const ownerCheck = await query("SELECT created_by FROM partenaire_export_data WHERE id = $1", [id]);
-      if (ownerCheck.rows.length === 0 || ownerCheck.rows[0].created_by !== userId) {
-        return res.status(403).json(apiError("Non autorisé à modifier cet export", "FORBIDDEN", 403));
+      const ownerCheck = await query(
+        "SELECT created_by FROM partenaire_export_data WHERE id = $1",
+        [id],
+      );
+      if (
+        ownerCheck.rows.length === 0 ||
+        ownerCheck.rows[0].created_by !== userId
+      ) {
+        return res
+          .status(403)
+          .json({ success: false, message: "Action failed" });
       }
     }
     // Validate if provided
     if (trailerNumber && !validateTrailerNumber(trailerNumber)) {
-      return res.status(400).json(validationError("trailerNumber", "Invalid trailer number format"));
+      return res
+        .status(400)
+        .json(
+          validationError("trailerNumber", "Invalid trailer number format"),
+        );
     }
     if (clientName && !validateClientName(clientName)) {
-      return res.status(400).json(validationError("clientName", "Invalid client name"));
+      return res
+        .status(400)
+        .json(validationError("clientName", "Invalid client name"));
     }
     if (embarkationDate && !validateDateRange(new Date(embarkationDate))) {
-      return res.status(400).json(validationError("embarkationDate", "Invalid embarkation date"));
+      return res
+        .status(400)
+        .json(validationError("embarkationDate", "Invalid embarkation date"));
     }
     // Update only provided fields
     const updates = [];
@@ -194,19 +207,24 @@ const updateExportData = async (req, res) => {
       updates.push(`number_of_straps = $${paramIndex++}`);
       values.push(numberOfStraps);
     }
-    if (numberOfSuctionCups !== undefined && validateCounts(numberOfSuctionCups)) {
+    if (
+      numberOfSuctionCups !== undefined &&
+      validateCounts(numberOfSuctionCups)
+    ) {
       updates.push(`number_of_suction_cups = $${paramIndex++}`);
       values.push(numberOfSuctionCups);
     }
     if (updates.length === 0) {
-      return res.status(400).json(validationError("body", "No valid fields to update"));
+      return res
+        .status(400)
+        .json(validationError("body", "No valid fields to update"));
     }
     const result = await query(
       `UPDATE partenaire_export_data SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *`,
-      values
+      values,
     );
     if (result.rows.length === 0) {
-      return res.status(404).json(apiError("Export non trouvé", "NOT_FOUND", 404));
+      return res.status(404).json({ success: false, message: "Action failed" });
     }
     return res.json({
       success: true,
@@ -215,7 +233,7 @@ const updateExportData = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Erreur mise à jour export partenaire:", error);
-    return res.status(500).json(apiError("Erreur lors de la mise à jour de l'export"));
+    return res.status(500).json({ success: false, message: "Action failed" });
   }
 };
 
@@ -230,22 +248,39 @@ const deleteExportData = async (req, res) => {
     const userType = req.user.user_type;
     // Verify ownership
     if (userType !== "admin") {
-      const ownerCheck = await query("SELECT created_by FROM partenaire_export_data WHERE id = $1", [id]);
-      if (ownerCheck.rows.length === 0 || ownerCheck.rows[0].created_by !== userId) {
-        return res.status(403).json(apiError("Non autorisé à supprimer cet export", "FORBIDDEN", 403));
+      const ownerCheck = await query(
+        "SELECT created_by FROM partenaire_export_data WHERE id = $1",
+        [id],
+      );
+      if (
+        ownerCheck.rows.length === 0 ||
+        ownerCheck.rows[0].created_by !== userId
+      ) {
+        return res
+          .status(403)
+          .json({ success: false, message: "Action failed" });
       }
     }
     // Only allow deletion if not already approved/rejected
-    const stateCheck = await query("SELECT approval_status FROM partenaire_export_data WHERE id = $1", [id]);
+    const stateCheck = await query(
+      "SELECT approval_status FROM partenaire_export_data WHERE id = $1",
+      [id],
+    );
     if (stateCheck.rows.length === 0) {
-      return res.status(404).json(apiError("Export non trouvé", "NOT_FOUND", 404));
+      return res.status(404).json({ success: false, message: "Action failed" });
     }
     if (stateCheck.rows[0].approval_status !== "pending") {
-      return res.status(400).json(apiError("Cannot delete export that has already been processed", "INVALID_STATE", 400));
+      return res.status(400).json({
+        success: false,
+        message: "Cannot delete export that has already been processed",
+      });
     }
-    const result = await query("DELETE FROM partenaire_export_data WHERE id = $1 RETURNING *", [id]);
+    const result = await query(
+      "DELETE FROM partenaire_export_data WHERE id = $1 RETURNING *",
+      [id],
+    );
     if (result.rows.length === 0) {
-      return res.status(404).json(apiError("Export non trouvé", "NOT_FOUND", 404));
+      return res.status(404).json({ success: false, message: "Action failed" });
     }
     return res.json({
       success: true,
@@ -254,12 +289,11 @@ const deleteExportData = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Erreur suppression export partenaire:", error);
-    return res.status(500).json(apiError("Erreur lors de la suppression de l'export"));
+    return res.status(500).json({ success: false, message: "Action failed" });
   }
 };
 
 /**
- * Approve partenaire export (for agent import role)
  * PUT /api/partenaire-exports/:id/approve
  */
 const approveExportData = async (req, res) => {
@@ -267,22 +301,30 @@ const approveExportData = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
     // Get export
-    const result = await query("SELECT * FROM partenaire_export_data WHERE id = $1", [id]);
+    const result = await query(
+      "SELECT * FROM partenaire_export_data WHERE id = $1",
+      [id],
+    );
     if (result.rows.length === 0) {
-      return res.status(404).json(apiError("Export non trouvé", "NOT_FOUND", 404));
+      return res.status(404).json({ success: false, message: "Action failed" });
     }
     const exportData = result.rows[0];
     if (exportData.approval_status !== "pending") {
-      return res.status(400).json(apiError("Export has already been processed", "INVALID_STATE", 400));
+      return res.status(400).json({ success: false, message: "Action failed" });
     }
     // Update approval
     const updatedResult = await query(
       `UPDATE partenaire_export_data SET approval_status = 'approved', approved_by = $1, approved_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
-      [userId, id]
+      [userId, id],
     );
     const updatedData = updatedResult.rows[0];
     // Trigger notifications
-    notifyApprovalDecision("partenaire_export", updatedData, userId, "approved");
+    notifyApprovalDecision(
+      "partenaire_export",
+      updatedData,
+      userId,
+      "approved",
+    );
     return res.json({
       success: true,
       message: "Export approuvé avec succès",
@@ -295,12 +337,11 @@ const approveExportData = async (req, res) => {
     });
   } catch (error) {
     console.error("Erreur approbation export partenaire:", error);
-    return res.status(500).json(apiError("Erreur lors de l'approbation de l'export"));
+    return res.status(500).json({ success: false, message: "Action failed" });
   }
 };
 
 /**
- * Reject partenaire export (for agent import role)
  * PUT /api/partenaire-exports/:id/reject
  */
 const rejectExportData = async (req, res) => {
@@ -309,25 +350,36 @@ const rejectExportData = async (req, res) => {
     const userId = req.user.id;
     const { reason } = req.body;
     if (!reason || reason.trim().length === 0) {
-      return res.status(400).json(validationError("reason", "Rejection reason is required"));
+      return res
+        .status(400)
+        .json(validationError("reason", "Rejection reason is required"));
     }
     // Get export
-    const result = await query("SELECT * FROM partenaire_export_data WHERE id = $1", [id]);
+    const result = await query(
+      "SELECT * FROM partenaire_export_data WHERE id = $1",
+      [id],
+    );
     if (result.rows.length === 0) {
-      return res.status(404).json(apiError("Export non trouvé", "NOT_FOUND", 404));
+      return res.status(404).json({ success: false, message: "Action failed" });
     }
     const exportData = result.rows[0];
     if (exportData.approval_status !== "pending") {
-      return res.status(400).json(apiError("Export has already been processed", "INVALID_STATE", 400));
+      return res.status(400).json({ success: false, message: "Action failed" });
     }
     // Update rejection
     const updatedResult = await query(
       `UPDATE partenaire_export_data SET approval_status = 'rejected', approved_by = $1, approved_at = CURRENT_TIMESTAMP, rejection_reason = $2 WHERE id = $3 RETURNING *`,
-      [userId, reason, id]
+      [userId, reason, id],
     );
     const updatedData = updatedResult.rows[0];
     // Trigger notifications
-    notifyApprovalDecision("partenaire_export", updatedData, userId, "rejected", reason);
+    notifyApprovalDecision(
+      "partenaire_export",
+      updatedData,
+      userId,
+      "rejected",
+      reason,
+    );
     return res.json({
       success: true,
       message: "Export rejeté avec succès",
@@ -341,7 +393,7 @@ const rejectExportData = async (req, res) => {
     });
   } catch (error) {
     console.error("Erreur rejet export partenaire:", error);
-    return res.status(500).json(apiError("Erreur lors du rejet de l'export"));
+    return res.status(500).json({ success: false, message: "Action failed" });
   }
 };
 

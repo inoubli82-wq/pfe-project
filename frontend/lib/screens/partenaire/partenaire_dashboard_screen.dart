@@ -4,13 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:import_export_app/models/user_model.dart';
-import 'package:import_export_app/screens/common/login_screen.dart';
 import 'package:import_export_app/screens/common/notifications_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
-import 'package:import_export_app/widgets/widgets.dart';
 
 import 'partner_export_screen.dart';
-import 'partner_import_suivi_screen.dart';
+import 'partner_suivi_tabs_screen.dart';
 
 class PartenaireDashboardScreen extends StatefulWidget {
   final User user;
@@ -43,15 +41,6 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     if (response['success'] == true) {
       setState(() => _unreadCount = response['unreadCount'] ?? 0);
     }
-  }
-
-  void _logout() async {
-    await ApiService.logout();
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
   }
 
   @override
@@ -241,19 +230,19 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
   Widget _buildActionButtons() {
     return Column(
       children: [
-        // Suivi Import Button
+        // Suivi Opérations Button
         _buildActionCard(
           icon: Icons.track_changes,
-          title: 'Suivi Import',
-          description: 'Consulter l\'historique et le statut de vos imports',
+          title: 'Suivi Opérations',
+          description:
+              'Consulter l\'historique et le statut de vos imports et exports',
           iconColor: const Color(0xFF4CAF50),
           gradientColors: const [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    PartnerImportSuiviScreen(user: widget.user),
+                builder: (context) => PartnerSuiviTabsScreen(user: widget.user),
               ),
             );
           },

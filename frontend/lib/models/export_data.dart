@@ -24,12 +24,12 @@ class ExportData {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'trailer_number': trailerNumber,
-      'embarkation_date': embarkationDate.toIso8601String(),
-      'client_name': clientName,
-      'number_of_bars': numberOfBars,
-      'number_of_straps': numberOfStraps,
-      'number_of_suction_cups': numberOfSuctionCups,
+      'trailerNumber': trailerNumber,
+      'embarkationDate': embarkationDate.toIso8601String(),
+      'clientName': clientName,
+      'numberOfBars': numberOfBars,
+      'numberOfStraps': numberOfStraps,
+      'numberOfSuctionCups': numberOfSuctionCups,
     };
   }
 

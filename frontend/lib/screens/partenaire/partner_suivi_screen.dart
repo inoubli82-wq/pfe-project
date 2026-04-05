@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/user_model.dart';
+
 import '../../models/export_data.dart';
+import '../../models/user_model.dart';
 import '../../services/api_service.dart';
 
 class PartnerSuiviScreen extends StatefulWidget {
@@ -28,9 +29,7 @@ class _PartnerSuiviScreenState extends State<PartnerSuiviScreen> {
 
     if (response['success'] == true && response['data'] != null) {
       setState(() {
-        _exports = (response['data'] as List)
-            .map((item) => ExportData.fromJson(item as Map<String, dynamic>))
-            .toList();
+        _exports = (response['data'] as List).cast<ExportData>();
       });
     }
 
