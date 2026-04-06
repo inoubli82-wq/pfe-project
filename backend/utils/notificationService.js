@@ -26,7 +26,16 @@ const createNotification = async (notificationData) => {
       `INSERT INTO notifications (type, title, message, reference_type, reference_id, sender_id, recipient_id, action_required)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [type, title, message, referenceType, referenceId, senderId, recipientId, actionRequired]
+      [
+        type,
+        title,
+        message,
+        referenceType,
+        referenceId,
+        senderId,
+        recipientId,
+        actionRequired,
+      ],
     );
     return result.rows[0];
   } catch (error) {
@@ -42,17 +51,19 @@ const createNotification = async (notificationData) => {
 const notifyAgentExportCreated = async (exportData, agentId) => {
   try {
     // Get sender name
-    const agent = await getOne("SELECT full_name FROM users WHERE id = $1", [agentId]);
+    const agent = await getOne("SELECT full_name FROM users WHERE id = $1", [
+      agentId,
+    ]);
     const agentName = agent?.full_name || "Agent";
 
     // Get all partenaires and admins
     const partenaires = await getMany(
       `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
-      [ROLES.PARTENAIRE]
+      [ROLES.PARTENAIRE],
     );
     const admins = await getMany(
       `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
-      [ROLES.ADMIN]
+      [ROLES.ADMIN],
     );
 
     const title = "Nouvelle demande d'export";
@@ -86,7 +97,9 @@ const notifyAgentExportCreated = async (exportData, agentId) => {
       });
     }
 
-    console.log(`📧 Notifications envoyées pour agent export #${exportData.id}`);
+    console.log(
+      `📧 Notifications envoyées pour agent export #${exportData.id}`,
+    );
   } catch (error) {
     console.error("Error notifying agent export creation:", error);
   }
@@ -99,17 +112,20 @@ const notifyAgentExportCreated = async (exportData, agentId) => {
 const notifyPartnerExportCreated = async (exportData, partenaiId) => {
   try {
     // Get sender name
-    const partenaire = await getOne("SELECT full_name FROM users WHERE id = $1", [partenaiId]);
+    const partenaire = await getOne(
+      "SELECT full_name FROM users WHERE id = $1",
+      [partenaiId],
+    );
     const partenaireName = partenaire?.full_name || "Partenaire";
 
     // Get all agent imports and admins
     const agentImports = await getMany(
       `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
-      [ROLES.AGENT_IMPORT]
+      [ROLES.AGENT_IMPORT],
     );
     const admins = await getMany(
       `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
-      [ROLES.ADMIN]
+      [ROLES.ADMIN],
     );
 
     const title = "Nouvelle export partenaire";
@@ -121,7 +137,7 @@ const notifyPartnerExportCreated = async (exportData, partenaiId) => {
         type: "export_request",
         title,
         message: `${partenaireName} a créé un export (${trailerNumber}). Action requise.`,
-        referenceType: "partenaire_export",
+        referenceType: "export",
         referenceId: exportData.id,
         senderId: partenaiId,
         recipientId: agentImport.id,
@@ -135,7 +151,7 @@ const notifyPartnerExportCreated = async (exportData, partenaiId) => {
         type: "export_request",
         title,
         message: `${partenaireName} a créé un export (${trailerNumber}).`,
-        referenceType: "partenaire_export",
+        referenceType: "export",
         referenceId: exportData.id,
         senderId: partenaiId,
         recipientId: admin.id,
@@ -143,7 +159,9 @@ const notifyPartnerExportCreated = async (exportData, partenaiId) => {
       });
     }
 
-    console.log(`📧 Notifications envoyées pour partenaire export #${exportData.id}`);
+    console.log(
+      `📧 Notifications envoyées pour partenaire export #${exportData.id}`,
+    );
   } catch (error) {
     console.error("Error notifying partner export creation:", error);
   }
@@ -158,12 +176,12 @@ const notifyApprovalDecision = async (
   requestData,
   decisionMakerId,
   decision, // 'approved' or 'rejected'
-  reason = null
+  reason = null,
 ) => {
   try {
     const decisionMaker = await getOne(
       "SELECT full_name, user_type FROM users WHERE id = $1",
-      [decisionMakerId]
+      [decisionMakerId],
     );
     const decisionMakerName = decisionMaker?.full_name || "User";
     const decisionMakerRole = decisionMaker?.user_type;
@@ -171,11 +189,15 @@ const notifyApprovalDecision = async (
     // Get all admins
     const admins = await getMany(
       `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
-      [ROLES.ADMIN]
+      [ROLES.ADMIN],
     );
 
     const trailerNumber = requestData.trailer_number;
     const isApproved = decision === "approved";
+
+    // Map partenaire_export to export for database constraint compliance
+    const dbReferenceType =
+      requestType === "partenaire_export" ? "export" : requestType;
 
     // Determine message based on request type and decision maker role
     let creatorMessage = "";
@@ -198,7 +220,7 @@ const notifyApprovalDecision = async (
         type: isApproved ? "approval" : "rejection",
         title,
         message: creatorMessage,
-        referenceType: requestType,
+        referenceType: dbReferenceType,
         referenceId: requestData.id,
         senderId: decisionMakerId,
         recipientId: requestData.created_by,
@@ -214,7 +236,7 @@ const notifyApprovalDecision = async (
           type: "info",
           title: `Mise à jour: ${title}`,
           message: adminMessage,
-          referenceType: requestType,
+          referenceType: dbReferenceType,
           referenceId: requestData.id,
           senderId: decisionMakerId,
           recipientId: admin.id,
@@ -224,7 +246,7 @@ const notifyApprovalDecision = async (
     }
 
     console.log(
-      `📧 Notifications de décision envoyées pour ${requestType} #${requestData.id}`
+      `📧 Notifications de décision envoyées pour ${requestType} #${requestData.id}`,
     );
   } catch (error) {
     console.error("Error notifying approval decision:", error);

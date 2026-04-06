@@ -25,6 +25,8 @@ class _VerificationRequestCardState extends State<VerificationRequestCard> {
   int _barsCount = 0;
   int _strapsCount = 0;
   bool _isLoading = false;
+  bool _showRejectComment = false;
+  final TextEditingController _commentController = TextEditingController();
 
   @override
   void initState() {
@@ -32,6 +34,12 @@ class _VerificationRequestCardState extends State<VerificationRequestCard> {
     // Initialize with data from the request if available
     _barsCount = widget.request.barsCount ?? 0;
     _strapsCount = widget.request.singlesCount ?? 0;
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
   }
 
   void _incrementBars() => setState(() => _barsCount++);
@@ -45,29 +53,30 @@ class _VerificationRequestCardState extends State<VerificationRequestCard> {
   }
 
   Future<void> _handleDecision(String decision) async {
-    setState(() => _isLoading = true);
-
-    String? reason;
     if (decision == 'rejected') {
-      // For rejection, we might want to ask for a reason
-      // But here we'll keep it simple or show a dialog
-      // For now, assume empty reason or use a simple dialog
-      // If you want a reason dialog:
-      /*
-      reason = await showDialog<String>(context: context, ...);
-      if (reason == null) {
-        setState(() => _isLoading = false);
+      if (!_showRejectComment) {
+        setState(() => _showRejectComment = true);
         return;
       }
-      */
+      if (_commentController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Veuillez entrer une raison de refus'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
     }
+
+    setState(() => _isLoading = true);
 
     try {
       final response = await ApiService.handleDecision(
         requestType: widget.request.type,
         requestId: widget.request.id,
         decision: decision,
-        reason: reason,
+        reason: decision == 'rejected' ? _commentController.text.trim() : null,
         extraData: {
           'barsCount': _barsCount,
           'singlesCount': _strapsCount,
@@ -164,32 +173,65 @@ class _VerificationRequestCardState extends State<VerificationRequestCard> {
             ),
           ),
           const SizedBox(height: 16),
+          // Reason input (conditionally shown)
+          if (_showRejectComment) ...[
+            TextField(
+              controller: _commentController,
+              decoration: InputDecoration(
+                labelText: 'Motif du refus',
+                hintText: 'Saisissez la raison...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                filled: true,
+                fillColor: Colors.red[50],
+              ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 12),
+          ],
           // Action Buttons
           Row(
             children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed:
-                      _isLoading ? null : () => _handleDecision('approved'),
-                  icon: const Icon(Icons.check, size: 20),
-                  label: const Text('Approuver'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              if (!_showRejectComment)
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed:
+                        _isLoading ? null : () => _handleDecision('approved'),
+                    icon: const Icon(Icons.check, size: 20),
+                    label: const Text('Approuver'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
+              if (!_showRejectComment) const SizedBox(width: 12),
+              if (_showRejectComment)
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _showRejectComment = false;
+                        _commentController.clear();
+                      });
+                    },
+                    child: const Text('Annuler',
+                        style: TextStyle(color: Colors.grey)),
+                  ),
+                ),
+              if (_showRejectComment) const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed:
                       _isLoading ? null : () => _handleDecision('rejected'),
                   icon: const Icon(Icons.close, size: 20),
-                  label: const Text('Refuser'),
+                  label: Text(
+                      _showRejectComment ? 'Confirmer le refus' : 'Refuser'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors
                         .red, // Updated to match user expectation (red button)

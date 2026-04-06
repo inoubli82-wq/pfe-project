@@ -42,18 +42,26 @@ class AgentExportData {
   factory AgentExportData.fromJson(Map<String, dynamic> json) {
     return AgentExportData(
       id: json['id'],
-      trailerNumber: json['trailerNumber'] ?? '',
-      date: DateTime.parse(json['date'] ?? DateTime.now().toIso8601String()),
-      clientName: json['clientName'] ?? '',
+      trailerNumber: json['trailerNumber'] ?? json['trailer_number'] ?? '',
+      date: DateTime.parse(json['date'] ??
+          json['export_date'] ??
+          DateTime.now().toIso8601String()),
+      clientName: json['clientName'] ?? json['client_name'] ?? '',
       country: json['country'] ?? '',
       transporter: json['transporter'],
-      barsCount: json['barsCount'] ?? 0,
-      singlesCount: json['singlesCount'] ?? 0,
+      barsCount: json['barsCount'] ?? json['bars_count'] ?? 0,
+      singlesCount: json['singlesCount'] ?? json['singles_count'] ?? 0,
       notes: json['notes'],
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : (json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : null),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : (json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : null),
     );
   }
 }

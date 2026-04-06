@@ -239,6 +239,20 @@ async function createTables() {
   await safeAddColumn("imports", "approved_at", "TIMESTAMP");
   await safeAddColumn("imports", "rejection_reason", "TEXT");
 
+  // Add approval columns to partenaire_export_data if they don't exist
+  await safeAddColumn(
+    "partenaire_export_data",
+    "approval_status",
+    "VARCHAR(50) DEFAULT 'pending'",
+  );
+  await safeAddColumn(
+    "partenaire_export_data",
+    "approved_by",
+    "INTEGER REFERENCES users(id) ON DELETE SET NULL",
+  );
+  await safeAddColumn("partenaire_export_data", "approved_at", "TIMESTAMP");
+  await safeAddColumn("partenaire_export_data", "rejection_reason", "TEXT");
+
   // Create indexes
   await query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
   await query(

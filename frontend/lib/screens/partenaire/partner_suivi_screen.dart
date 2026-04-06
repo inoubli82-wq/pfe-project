@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/export_data.dart';
 import '../../models/user_model.dart';
 import '../../services/api_service.dart';
+import '../../widgets/widgets.dart';
 
 class PartnerSuiviScreen extends StatefulWidget {
   final User user;
@@ -85,102 +86,22 @@ class _PartnerSuiviScreenState extends State<PartnerSuiviScreen> {
                       itemCount: _exports.length,
                       itemBuilder: (context, index) {
                         final export = _exports[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Remorque: ${export.trailerNumber}',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green[50],
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        'Créé',
-                                        style: TextStyle(
-                                          color: Colors.green[700],
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                _buildInfoRow(
-                                  'Client',
-                                  export.clientName,
-                                ),
-                                _buildInfoRow(
-                                  'Date',
-                                  export.embarkationDate.toString(),
-                                ),
-                                _buildInfoRow(
-                                  'Barres',
-                                  export.numberOfBars.toString(),
-                                ),
-                                _buildInfoRow(
-                                  'Sangles',
-                                  export.numberOfStraps.toString(),
-                                ),
-                                _buildInfoRow(
-                                  'Ventouses',
-                                  export.numberOfSuctionCups.toString(),
-                                ),
-                              ],
-                            ),
-                          ),
+                        return RequestCard(
+                          type: 'export',
+                          trailerNumber: export.trailerNumber,
+                          entityName: export.clientName,
+                          country:
+                              '', // 'Country' not directly available in ExportData here, leave empty if not present
+                          date: export.embarkationDate,
+                          status:
+                              'created', // Default to something like created
+                          approvalStatus:
+                              'approved', // Partner exports are their own, show as approved or pending based on status if you had it
+                          createdByName: widget.user.fullName,
                         );
                       },
                     ),
             ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

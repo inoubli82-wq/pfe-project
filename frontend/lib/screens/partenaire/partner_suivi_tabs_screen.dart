@@ -22,12 +22,13 @@ class PartnerSuiviTabsScreen extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(
-                icon: Icon(Icons.download),
-                text: 'Mes Imports',
+                icon: Icon(Icons.fact_check),
+                text:
+                    'Demandes à Vérifier', // Changed label to show both imports and exports need verification
               ),
               Tab(
                 icon: Icon(Icons.upload),
-                text: 'Mes Exports',
+                text: 'Suivi Mes Exports',
               ),
             ],
             indicatorColor: Colors.white,

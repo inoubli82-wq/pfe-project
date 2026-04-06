@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:import_export_app/models/user_model.dart';
+import 'package:import_export_app/screens/common/login_screen.dart';
 import 'package:import_export_app/screens/common/notifications_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
 
@@ -41,6 +42,45 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
     if (response['success'] == true) {
       setState(() => _unreadCount = response['unreadCount'] ?? 0);
     }
+  }
+
+  void _logout() async {
+    await ApiService.logout();
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Déconnexion'),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _logout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Déconnexion'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -134,47 +174,63 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
             ],
           ),
 
-          // Notification Icon
-          Stack(
+          // Notification and Logout Icons
+          Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_outlined,
-                    color: Colors.white),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          NotificationsScreen(user: widget.user),
-                    ),
-                  ).then((_) => _loadUnreadCount());
-                },
-              ),
-              if (_unreadCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Text(
-                      '$_unreadCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+              Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined,
+                        color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              NotificationsScreen(user: widget.user),
+                        ),
+                      ).then((_) => _loadUnreadCount());
+                    },
                   ),
+                  if (_unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '$_unreadCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              Container(
+                margin: const EdgeInsets.only(left: 8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: IconButton(
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  onPressed: () => _showLogoutDialog(context),
+                  tooltip: 'Déconnexion',
+                ),
+              ),
             ],
           ),
         ],
