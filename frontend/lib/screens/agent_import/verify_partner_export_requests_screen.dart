@@ -1,53 +1,49 @@
 import 'package:flutter/material.dart';
 
 import '../../models/notification_model.dart';
-import '../../models/user_model.dart';
 import '../../services/api_service.dart';
-import 'verification_request_card.dart';
+import 'agent_import_verification_request_card.dart';
 
-class PartnerImportSuiviScreen extends StatefulWidget {
-  final User user;
-
-  const PartnerImportSuiviScreen({super.key, required this.user});
+class VerifyPartnerExportRequestsScreen extends StatefulWidget {
+  const VerifyPartnerExportRequestsScreen({super.key});
 
   @override
-  State<PartnerImportSuiviScreen> createState() =>
-      _PartnerImportSuiviScreenState();
+  State<VerifyPartnerExportRequestsScreen> createState() =>
+      _VerifyPartnerExportRequestsScreenState();
 }
 
-class _PartnerImportSuiviScreenState extends State<PartnerImportSuiviScreen> {
+class _VerifyPartnerExportRequestsScreenState
+    extends State<VerifyPartnerExportRequestsScreen> {
   bool _isLoading = true;
-  List<PendingRequest> _pendingRequests = [];
+  List<PendingRequest> _pendingExports = [];
 
   @override
   void initState() {
     super.initState();
-    _loadRequests();
+    _loadPendingPartnerExports();
   }
 
-  Future<void> _loadRequests() async {
+  Future<void> _loadPendingPartnerExports() async {
     setState(() => _isLoading = true);
+
     final response = await ApiService.getPendingRequests();
 
     if (response['success'] == true) {
-      final imports = (response['pendingImports'] as List?)
-              ?.map((e) => PendingRequest.fromJson(e, 'import'))
-              .toList() ??
-          [];
-
       final exports = (response['pendingExports'] as List?)
               ?.map((e) => PendingRequest.fromJson(e, 'export'))
               .toList() ??
           [];
 
+      exports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
       setState(() {
-        _pendingRequests = [...imports, ...exports];
-        // Tri par date la plus récente
-        _pendingRequests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        _pendingExports = exports;
       });
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -55,7 +51,7 @@ class _PartnerImportSuiviScreenState extends State<PartnerImportSuiviScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Vérification des Demandes',
+          'Vérification Export Partenaire',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -72,8 +68,8 @@ class _PartnerImportSuiviScreenState extends State<PartnerImportSuiviScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: _loadRequests,
-              child: _pendingRequests.isEmpty
+              onRefresh: _loadPendingPartnerExports,
+              child: _pendingExports.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -85,22 +81,23 @@ class _PartnerImportSuiviScreenState extends State<PartnerImportSuiviScreen> {
                           ),
                           const SizedBox(height: 16),
                           const Text(
-                            'Aucune demande en attente',
+                            'Aucune demande export partenaire en attente',
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.grey,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
-                      itemCount: _pendingRequests.length,
+                      itemCount: _pendingExports.length,
                       itemBuilder: (context, index) {
-                        return PartenaireVerificationRequestCard(
-                          request: _pendingRequests[index],
-                          onRefresh: _loadRequests,
+                        return AgentImportVerificationRequestCard(
+                          request: _pendingExports[index],
+                          onRefresh: _loadPendingPartnerExports,
                         );
                       },
                     ),

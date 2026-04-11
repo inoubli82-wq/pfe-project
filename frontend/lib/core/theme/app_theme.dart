@@ -34,7 +34,7 @@ class AppTheme {
       ),
 
       // Scaffold
-      scaffoldBackgroundColor: AppColors.scaffoldBackground,
+      scaffoldBackgroundColor: Colors.transparent,
 
       // Typography
       textTheme: _textTheme,

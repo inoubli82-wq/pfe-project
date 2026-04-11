@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
+import '../../models/export_data.dart';
 import '../../services/api_service.dart';
 import '../../widgets/widgets.dart';
-import '../../models/export_data.dart';
 
 class PartnerExportScreen extends StatefulWidget {
   const PartnerExportScreen({super.key});
@@ -160,7 +161,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color:  Color(0xFF0C44A6),
                     ),
                   ),
                 ),
@@ -171,10 +172,10 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: const Color(0xFF0C44A6),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.add, color: Colors.blue[700], size: 20),
+                    child: Icon(Icons.add, color: Color(0xFF0C44A6), size: 20),
                   ),
                 ),
               ],
@@ -199,8 +200,8 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 48, 6, 231),
+        foregroundColor: const Color(0xFF0C44A6),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
@@ -222,7 +223,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                   SizedBox(height: 16),
                   Text(
                     'Enregistrement en cours...',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Color(0xFF0C44A6)),
                   ),
                 ],
               ),
@@ -237,7 +238,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withValues(alpha: 0.1),
                         spreadRadius: 1,
                         blurRadius: 20,
                         offset: const Offset(0, 5),
@@ -249,8 +250,8 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                       // Header
                       Container(
                         padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
+                        decoration:  BoxDecoration(
+                          color:  Color(0xFF0C44A6),
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(20),
                             topRight: Radius.circular(20),
@@ -261,7 +262,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.blue,
+                                color: const Color(0xFF0C44A6),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -276,7 +277,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color:  Color(0xFF0C44A6),
                               ),
                             ),
                           ],
@@ -304,7 +305,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                               decoration: InputDecoration(
                                 hintText: 'Ex: 759-GHZ',
                                 prefixIcon: const Icon(Icons.local_shipping,
-                                    color: Colors.blue),
+                                    color: Color(0xFF0C44A6)),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
@@ -318,7 +319,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: Colors.blue, width: 2),
+                                      color: Color(0xFF0C44A6), width: 2),
                                 ),
                                 filled: true,
                                 fillColor: Colors.white,
@@ -386,7 +387,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                               decoration: InputDecoration(
                                 hintText: 'Ex: STÉG',
                                 prefixIcon: const Icon(Icons.person,
-                                    color: Colors.blue),
+                                    color: Color(0xFF0C44A6)),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide:
@@ -400,7 +401,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: const BorderSide(
-                                      color: Colors.blue, width: 2),
+                                      color: Color(0xFF0C44A6), width: 2),
                                 ),
                                 filled: true,
                                 fillColor: Colors.white,
@@ -420,7 +421,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Color(0xFF0C44A6),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -457,7 +458,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                               child: ElevatedButton(
                                 onPressed: _saveExportData,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: const Color(0xFF0C44A6),
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),

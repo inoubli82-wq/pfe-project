@@ -27,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final List<String> _transporters = [
     'DHL',
     'AST',
-    'Trasuniverse',
+    'TRANSUNIVERS',
   ];
 
   final List<Map<String, String>> _countries = [
@@ -328,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
+                          color: Colors.black.withValues(alpha: 0.15),
                           blurRadius: 15,
                           spreadRadius: 3,
                         ),
@@ -547,7 +547,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? (type['color'] as Color)
-                                              .withOpacity(0.08)
+                                              .withValues(alpha: 0.08)
                                           : Colors.white,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
@@ -558,7 +558,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.grey.withOpacity(0.1),
+                                          color: Colors.grey.withValues(alpha: 0.1),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),
                                         ),
@@ -570,7 +570,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
                                             color: (type['color'] as Color)
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                           ),
@@ -655,7 +655,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     value: _selectedTransporter,
                                     isExpanded: true,
                                     icon: const Icon(Icons.arrow_drop_down,
-                                        color: Color(0xFF4299E1)),
+                                        color: Color(0xFF0C44A6)),
                                     hint: const Text(
                                       'Sélectionnez un transporteur',
                                       style: TextStyle(color: Colors.grey),

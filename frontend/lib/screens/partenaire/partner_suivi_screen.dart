@@ -49,7 +49,7 @@ class _PartnerSuiviScreenState extends State<PartnerSuiviScreen> {
           ),
         ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.blue,
+        foregroundColor: const Color(0xFF0C44A6),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
@@ -93,10 +93,8 @@ class _PartnerSuiviScreenState extends State<PartnerSuiviScreen> {
                           country:
                               '', // 'Country' not directly available in ExportData here, leave empty if not present
                           date: export.embarkationDate,
-                          status:
-                              'created', // Default to something like created
-                          approvalStatus:
-                              'approved', // Partner exports are their own, show as approved or pending based on status if you had it
+                          status: export.approvalStatus,
+                          approvalStatus: export.approvalStatus,
                           createdByName: widget.user.fullName,
                         );
                       },

@@ -10,7 +10,7 @@ const ROLES = {
 };
 
 // Valid transporters for Partenaire users
-const VALID_TRANSPORTERS = ["DHL", "AST", "Trasuniverse"];
+const VALID_TRANSPORTERS = ["DHL", "AST", "TRANSUNIVERS"];
 
 // Role permissions
 const PERMISSIONS = {

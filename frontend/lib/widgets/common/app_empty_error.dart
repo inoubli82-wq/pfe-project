@@ -72,7 +72,7 @@ class AppErrorWidget extends StatelessWidget {
             Icon(
               icon,
               size: 64,
-              color: iconColor ?? AppColors.error.withOpacity(0.7),
+              color: iconColor ?? AppColors.error.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             if (title != null) ...[

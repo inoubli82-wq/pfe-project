@@ -44,6 +44,9 @@ const createNotification = async (notificationData) => {
   }
 };
 
+const normalizeTransporter = (value) =>
+  typeof value === "string" ? value.trim().toUpperCase() : "";
+
 /**
  * WORKFLOW 1: Agent Export Created
  * Agent Creates Export → Partenaire gets actionRequired notification + Admin gets info notification
@@ -56,11 +59,16 @@ const notifyAgentExportCreated = async (exportData, agentId) => {
     ]);
     const agentName = agent?.full_name || "Agent";
 
-    // Get all partenaires and admins
-    const partenaires = await getMany(
-      `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
-      [ROLES.PARTENAIRE],
-    );
+    const transporter = normalizeTransporter(exportData.transporter);
+    const partenaires = transporter
+      ? await getMany(
+          `SELECT id FROM users WHERE user_type = $1 AND status = 'active' AND UPPER(COALESCE(transporter, '')) = $2`,
+          [ROLES.PARTENAIRE, transporter],
+        )
+      : await getMany(
+          `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
+          [ROLES.PARTENAIRE],
+        );
     const admins = await getMany(
       `SELECT id FROM users WHERE user_type = $1 AND status = 'active'`,
       [ROLES.ADMIN],

@@ -115,6 +115,8 @@ app.listen(PORT, () => {
   console.log("   🔴 Admin:        admin@test.com / admin123");
   console.log("   🟢 Agent Export: export@test.com / export123");
   console.log("   🔵 Agent Import: import@test.com / import123");
-  console.log("   🟠 Partenaire: partenaire@test.com / partenaire123");
+  console.log("   🟠 Partenaire DHL:        partenaire@test.com / partenaire123");
+  console.log("   🟠 Partenaire AST:        ast@test.com / partenaire123");
+  console.log("   🟠 Partenaire TRANSUNIVERS: transunivers@test.com / partenaire123");
   console.log("=".repeat(60));
 });

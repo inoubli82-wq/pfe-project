@@ -7,6 +7,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:import_export_app/models/notification_model.dart';
 import 'package:import_export_app/models/user_model.dart';
+import 'package:import_export_app/screens/agent_import/verify_partner_export_requests_screen.dart';
+import 'package:import_export_app/screens/partenaire/partner_import_suivi_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
 import 'package:import_export_app/widgets/widgets.dart';
 
@@ -238,6 +240,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   void _showNotificationDetail(NotificationModel notification) {
+    final canOpenVerification = _canOpenVerification(notification);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -284,8 +288,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: notification.actionTaken == 'approved'
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -307,6 +311,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           borderRadius: BorderRadius.circular(15),
         ),
         actions: [
+          if (canOpenVerification)
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _openVerificationForCurrentUser();
+              },
+              child: const Text('Vérifier'),
+            ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Fermer'),
@@ -314,6 +326,40 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
     );
+  }
+
+  bool _canOpenVerification(NotificationModel notification) {
+    if (widget.user.isAgentImport) {
+      return notification.type == NotificationType.exportRequest;
+    }
+
+    if (widget.user.isPartenaire) {
+      return notification.type == NotificationType.exportRequest ||
+          notification.type == NotificationType.importRequest;
+    }
+
+    return false;
+  }
+
+  void _openVerificationForCurrentUser() {
+    if (widget.user.isAgentImport) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const VerifyPartnerExportRequestsScreen(),
+        ),
+      );
+      return;
+    }
+
+    if (widget.user.isPartenaire) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PartnerImportSuiviScreen(user: widget.user),
+        ),
+      );
+    }
   }
 
   Widget _getNotificationIcon(NotificationType type) {
@@ -327,7 +373,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         break;
       case NotificationType.importRequest:
         icon = Icons.download;
-        color = Colors.blue;
+        color = const Color(0xFF0C44A6);
         break;
       case NotificationType.approval:
         icon = Icons.check_circle;
@@ -345,7 +391,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: color, size: 24),

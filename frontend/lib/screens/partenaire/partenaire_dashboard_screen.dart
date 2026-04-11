@@ -222,7 +222,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
               Container(
                 margin: const EdgeInsets.only(left: 8),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: IconButton(
@@ -253,7 +253,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
@@ -269,7 +269,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                User.roleToString(widget.user.role),
+                widget.user.displayRoleLabel,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
@@ -309,8 +309,8 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
           icon: Icons.add_circle_outline,
           title: 'Créer un Export',
           description: 'Créer un nouveau document d\'export partenaire',
-          iconColor: const Color(0xFF2196F3),
-          gradientColors: const [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
+          iconColor: const Color(0xFF0C44A6),
+          gradientColors: const [Color(0xFF0C44A6), Color(0xFF0C44A6)],
           onTap: () {
             Navigator.push(
               context,
@@ -355,7 +355,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.2),
+                  color: iconColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(

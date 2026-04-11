@@ -184,7 +184,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
       SnackBar(
         content: Text(message), // The message to display
         duration: const Duration(seconds: 1), // How long to show (1 second)
-        backgroundColor: Colors.blue[800], // Background color (dark blue)
+        backgroundColor: const Color(0xFF0C44A6),
       ),
     );
   }
@@ -202,7 +202,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
           TextButton(
             // Navigator.pop: Closes the dialog (removes from navigation stack)
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK', style: TextStyle(color: Colors.blue)),
+            child: const Text('OK', style: TextStyle(color: Color(0xFF0C44A6))),
           ),
         ],
       ),
@@ -214,119 +214,85 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
   // Returns a Widget tree that Flutter renders on screen
   @override
   Widget build(BuildContext context) {
-    // Scaffold: Basic Material Design layout structure
-    // Provides standard app structure with appbar, body, drawer, etc.
     return Scaffold(
-      // Column: Arranges children vertically from top to bottom
+      backgroundColor: Colors.transparent,
       body: Column(
         children: [
-          // ============ HEADER SECTION ============
-          // Container: A convenience widget that combines common painting,
-          // positioning, and sizing widgets
           Container(
-            // BoxDecoration: Controls how to paint the container's box
             decoration: const BoxDecoration(
-              // DecorationImage: Paints an image as the background
               image: DecorationImage(
-                // AssetImage: Loads image from app's assets folder
                 image: AssetImage(
                     'assets/images/backgrounds/login_background.jpg'),
-                // BoxFit.cover: Scales image to fill container while preserving aspect ratio
                 fit: BoxFit.cover,
               ),
             ),
-            // SafeArea: Insets child to avoid OS intrusions (notch, status bar, etc.)
             child: SafeArea(
-              bottom:
-                  false, // Don't add padding at bottom (only top for status bar)
-              // Column: Vertical arrangement of header elements
+              bottom: false,
               child: Column(
-                // CrossAxisAlignment.start: Align children to left edge
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ============ CUSTOM APP BAR ============
-                  // Padding: Adds empty space around child widget
                   Padding(
-                    // EdgeInsets.symmetric: Same padding on opposite sides
-                    // horizontal: left & right, vertical: top & bottom
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    // Row: Arranges children horizontally from left to right
                     child: Row(
                       children: [
-                        // Back button to navigate to previous screen
                         IconButton(
-                          // Arrow function: () => expression (shorthand for single statement)
-                          // Navigator.pop: Go back to previous screen
                           onPressed: () => Navigator.pop(context),
-                          // Icon widget with iOS-style back arrow
-                          icon: const Icon(Icons.arrow_back_ios,
-                              color: Color(0xFF0C44A6), // Hex color: dark blue
-                              size: 22),
+                          icon: const Icon(
+                            Icons.arrow_back_ios,
+                            color: Color(0xFF0C44A6),
+                            size: 22,
+                          ),
                         ),
-                        // Expanded: Takes up remaining horizontal space
                         Expanded(
-                          // Center: Centers its child within available space
                           child: Center(
                             child: Row(
-                              // MainAxisSize.min: Row shrinks to fit children
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // App name "AST" - bold style
                                 Text(
                                   'AST',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold, // Bold text
+                                    fontWeight: FontWeight.bold,
                                     fontSize: 22,
-                                    color: Colors
-                                        .blue[900], // Material blue shade 900
+                                    color: const Color(0xFF0C44A6),
                                   ),
                                 ),
-                                const SizedBox(
-                                    width: 2), // Small horizontal spacer
-                                // App name continuation "Logitrack" - italic style
+                                const SizedBox(width: 2),
                                 Text(
                                   'Logitrack',
                                   style: TextStyle(
-                                    fontWeight:
-                                        FontWeight.w500, // Medium weight
+                                    fontWeight: FontWeight.w500,
                                     fontSize: 18,
-                                    color: Colors.blue[900],
-                                    fontStyle: FontStyle.italic, // Italic text
+                                    color: const Color(0xFF0C44A6),
+                                    fontStyle: FontStyle.italic,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        // Empty box for symmetry (balances the back button width)
                         const SizedBox(width: 48),
                       ],
                     ),
                   ),
-
-                  // ============ TITLE SECTION ============
                   Padding(
-                    // EdgeInsets.fromLTRB: Left, Top, Right, Bottom padding
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Main title text
                         const Text(
-                          'Commande à Vérifier', // "Order to Verify"
+                          'Commande à Vérifier',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A237E), // Indigo 900
+                            color: Color(0xFF0C44A6),
                           ),
                         ),
-                        const SizedBox(height: 4), // Vertical spacer
-                        // Subtitle with status
+                        const SizedBox(height: 4),
                         Text(
-                          'En cours · À valider', // "In progress · To validate"
+                          'En cours · À valider',
                           style: TextStyle(
-                            color: Colors.grey[600], // Grey shade 600
+                            color: Colors.grey[600],
                             fontSize: 14,
                           ),
                         ),
@@ -337,55 +303,40 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
               ),
             ),
           ),
-
-          // ============ MAIN CONTENT CARD ============
-          // Expanded: Takes remaining vertical space in the Column
           Expanded(
-            // Container for the white card content area
             child: Container(
-              // double.infinity: Take full available width
-              width: double.infinity,
               decoration: const BoxDecoration(
-                color: Colors.white, // White background
-                // BorderRadius.only: Round specific corners only
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24), // Rounded top corners
+                  topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
                 ),
               ),
-              // SingleChildScrollView: Makes content scrollable if it overflows
               child: SingleChildScrollView(
-                // EdgeInsets.all: Same padding on all 4 sides
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ============ STATUS BADGE ============
-                    // "En cours" (In Progress) status indicator
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        // withOpacity: Makes color semi-transparent (0.1 = 10% opacity)
-                        color: Colors.orange.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20), // Pill shape
-                        // Border.all: Same border on all sides
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
                         border:
-                            Border.all(color: Colors.orange.withOpacity(0.3)),
+                            Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                       ),
                       child: Row(
-                        // MainAxisSize.min: Shrink to fit content
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Clock icon for "in progress" status
                           Icon(Icons.access_time,
                               color: Colors.orange[700], size: 16),
                           const SizedBox(width: 6),
                           Text(
-                            'En cours', // "In Progress"
+                            'En cours',
                             style: TextStyle(
                               color: Colors.orange[700],
-                              fontWeight: FontWeight.w600, // Semi-bold
+                              fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
                           ),
@@ -393,35 +344,26 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // ============ ORDER HEADER ROW ============
                     Row(
-                      // MainAxisAlignment.spaceBetween: Space children at ends
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Order type and ID (e.g., "Export #123")
-                        // widget.request accesses data from parent widget
                         Text(
                           '${widget.request.typeDisplayName} #${widget.request.id}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue[900],
+                            color: Color(0xFF0C44A6),
                           ),
                         ),
-                        // Date badge container
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.grey[100], // Light grey background
+                            color: Colors.grey[100],
                             borderRadius: BorderRadius.circular(6),
-                            // Border with ! null assertion (we know grey[300] exists)
                             border: Border.all(color: Colors.grey[300]!),
                           ),
                           child: Text(
-                            // DateFormat: Formats DateTime to string
-                            // 'dd/MM/yyyy' = day/month/year format
                             DateFormat('dd/MM/yyyy')
                                 .format(widget.request.date),
                             style: TextStyle(
@@ -433,24 +375,16 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-
-                    // ============ TRANSPORTER INFO (CONDITIONAL) ============
-                    // if statement: Only show this widget if transporter exists
-                    // != null checks if transporter has a value
                     if (widget.request.transporter != null)
                       Padding(
-                        // EdgeInsets.only: Padding on specific sides only
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Row(
                           children: [
-                            // Truck icon for transporter
                             Icon(Icons.local_shipping_outlined,
                                 color: Colors.grey[500], size: 20),
                             const SizedBox(width: 10),
-                            // Expanded: Text takes remaining space, can wrap if needed
                             Expanded(
                               child: Text(
-                                // ! null assertion: We know it's not null from if check
                                 widget.request.transporter!,
                                 style: TextStyle(
                                   fontSize: 15,
@@ -461,16 +395,13 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                           ],
                         ),
                       ),
-
-                    // ============ TRAILER NUMBER ROW ============
                     Row(
                       children: [
-                        // Confirmation number icon
                         Icon(Icons.confirmation_number_outlined,
                             color: Colors.grey[500], size: 20),
                         const SizedBox(width: 10),
                         Text(
-                          'N° Remorque: ${widget.request.trailerNumber}', // "Trailer #:"
+                          'N° Remorque: ${widget.request.trailerNumber}',
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.grey[600],
@@ -479,15 +410,11 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-
-                    // ============ CLIENT/SUPPLIER ROW WITH VALIDATION INFO ============
                     Row(
                       children: [
-                        // Person icon for client/supplier
                         Icon(Icons.person_outline,
                             color: Colors.grey[500], size: 20),
                         const SizedBox(width: 10),
-                        // Entity name (client or supplier name)
                         Expanded(
                           child: Text(
                             widget.request.entityName,
@@ -497,44 +424,38 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                             ),
                           ),
                         ),
-                        // Clock icon for "waiting" status
                         Icon(Icons.access_time,
                             color: Colors.orange[400], size: 16),
                         const SizedBox(width: 4),
                         Text(
-                          'Validation attendue', // "Validation expected"
+                          'Validation attendue',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Warning icon showing urgency
                         Icon(Icons.warning_amber_rounded,
                             color: Colors.orange[600], size: 16),
                         const SizedBox(width: 4),
-                        // Days waiting counter
                         Text(
-                          'Depuis ${_getDaysSinceCreation()}\njours', // "Since X days"
+                          'Depuis ${_getDaysSinceCreation()}\njours',
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.orange[600],
-                            height: 1.2, // Line height multiplier
+                            height: 1.2,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
-
-                    // ============ LOCATION ROW ============
                     Row(
                       children: [
-                        // Location pin icon
                         Icon(Icons.location_on_outlined,
                             color: Colors.grey[500], size: 20),
                         const SizedBox(width: 10),
                         Text(
-                          widget.request.country, // Country name
+                          widget.request.country,
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.grey[700],
@@ -543,32 +464,22 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-
-                    // ============ CONFIRM/REJECT BUTTONS ROW ============
                     Row(
                       children: [
-                        // Expanded: Button takes half the available width
                         Expanded(
-                          // ElevatedButton: Raised button with elevation
                           child: ElevatedButton(
-                            onPressed: _confirmer, // Callback when pressed
-                            // styleFrom: Factory method to create button style
+                            onPressed: _confirmer,
                             style: ElevatedButton.styleFrom(
-                              // Ternary operator: condition ? valueIfTrue : valueIfFalse
-                              // Both conditions return same color (could be simplified)
-                              backgroundColor: _estConfirme
-                                  ? const Color(0xFF0D47A1)
-                                  : const Color(0xFF0D47A1), // Dark blue
-                              foregroundColor: Colors.white, // Text/icon color
-                              // RoundedRectangleBorder: Rectangle with rounded corners
+                              backgroundColor: const Color(0xFF0C44A6),
+                              foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              elevation: 0, // No shadow
+                              elevation: 0,
                             ),
                             child: const Text(
-                              'Confirmer', // "Confirm"
+                              'Confirmer',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
@@ -576,26 +487,21 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                            width: 12), // Horizontal space between buttons
-                        // Second button (Not Confirmed)
+                        const SizedBox(width: 12),
                         Expanded(
-                          // ElevatedButton.icon: Button with icon and label
                           child: ElevatedButton.icon(
                             onPressed: _nonConfirme,
-                            // Warning icon
                             icon: const Icon(Icons.warning_amber_rounded,
                                 size: 18),
                             label: const Text(
-                              'Non confirmé', // "Not confirmed"
+                              'Non confirmé',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color(0xFFB71C1C), // Dark red
+                              backgroundColor: const Color(0xFFB71C1C),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -608,53 +514,41 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-
-                    // ============ COUNTER SECTION - BARS ============
-                    // Custom widget to display counter for "Barres" (bars)
-                    CounterRow(
-                      title: 'Nombre de', // "Number of"
-                      boldTitle: 'Barres', // "Bars" (equipment)
-                      value: _nombreBarres, // Current count
-                      onIncrement: _incrementerBarres, // + button callback
-                      onDecrement: _decrementerBarres, // - button callback
-                    ),
-                    const SizedBox(height: 16),
-
-                    // ============ COUNTER SECTION - STRAPS ============
-                    // Custom widget to display counter for "Sangles" (straps)
                     CounterRow(
                       title: 'Nombre de',
-                      boldTitle: 'Sangles', // "Straps" (equipment)
+                      boldTitle: 'Barres',
+                      value: _nombreBarres,
+                      onIncrement: _incrementerBarres,
+                      onDecrement: _decrementerBarres,
+                    ),
+                    const SizedBox(height: 16),
+                    CounterRow(
+                      title: 'Nombre de',
+                      boldTitle: 'Sangles',
                       value: _nombreSangles,
                       onIncrement: _incrementerSangles,
                       onDecrement: _decrementerSangles,
                     ),
                     const SizedBox(height: 24),
-
-                    // ============ COMMENT SECTION LABEL ============
-                    // RichText: Allows different styles within same text block
                     RichText(
-                      // TextSpan: A segment of text with its own style
                       text: TextSpan(
-                        // Default style for all text
-                        style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey[800],
+                        ),
                         children: const [
-                          // First part: bold "Commentaire"
                           TextSpan(
-                            text: 'Commentaire ', // "Comment"
+                            text: 'Commentaire ',
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
-                          // Second part: normal "(optionnel)"
                           TextSpan(
-                            text: '(optionnel)', // "(optional)"
+                            text: '(optionnel)',
                             style: TextStyle(fontWeight: FontWeight.normal),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 10),
-
-                    // ============ COMMENT TEXT INPUT FIELD ============
                     TextField(
                       controller: _commentaireController,
                       maxLines: 1,
@@ -679,7 +573,9 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(
-                              color: Color(0xFF0D47A1), width: 1.5),
+                            color: Color(0xFF0C44A6),
+                            width: 1.5,
+                          ),
                         ),
                       ),
                       style: TextStyle(
@@ -688,16 +584,12 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-
-                    // ============ SEND BUTTON ============
-                    // SizedBox: Fixed/constrained size widget
                     SizedBox(
-                      width: double.infinity, // Full width button
+                      width: double.infinity,
                       child: ElevatedButton(
-                        onPressed:
-                            _isLoading ? null : _envoyer, // Submit callback
+                        onPressed: _isLoading ? null : _envoyer,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0D47A1), // Dark blue
+                          backgroundColor: const Color(0xFF0C44A6),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -714,7 +606,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                                 ),
                               )
                             : const Text(
-                                'Envoyer', // "Send"
+                                'Envoyer',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -728,56 +620,41 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
               ),
             ),
           ),
-
-          // ============ BOTTOM NAVIGATION BAR ============
-          // Container with shadow for navigation bar
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              // BoxShadow: Adds shadow effect
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black
-                      .withOpacity(0.05), // 5% black = subtle shadow
-                  blurRadius: 10, // How spread out the shadow is
-                  offset: const Offset(
-                      0, -5), // Shadow position (x, y) - above container
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -5),
                 ),
               ],
             ),
-            // SafeArea: Avoid bottom system UI (home indicator on iPhone X+)
             child: SafeArea(
-              top: false, // Only add padding at bottom
+              top: false,
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                // Row of navigation items
                 child: Row(
-                  // spaceAround: Equal space between and around items
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    // Home nav item (index 0)
                     _buildNavItem(
                       icon: Icons.home,
-                      // Check if this item is currently selected
                       isSelected: _selectedNavIndex == 0,
-                      // Update selected index when tapped
                       onTap: () => setState(() => _selectedNavIndex = 0),
                     ),
-                    // Documents nav item with notification badge (index 1)
                     _buildNavItemWithBadge(
                       icon: Icons.description_outlined,
-                      badgeCount: 3, // Number shown on badge
+                      badgeCount: 3,
                       isSelected: _selectedNavIndex == 1,
                       onTap: () => setState(() => _selectedNavIndex = 1),
                     ),
-                    // Chat nav item (index 2)
                     _buildNavItem(
                       icon: Icons.chat_bubble_outline,
                       isSelected: _selectedNavIndex == 2,
                       onTap: () => setState(() => _selectedNavIndex = 2),
                     ),
-                    // Profile nav item (index 3)
                     _buildNavItem(
                       icon: Icons.person_outline,
                       isSelected: _selectedNavIndex == 3,
@@ -808,7 +685,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
         child: Icon(
           icon,
           // Conditional color: blue if selected, grey otherwise
-          color: isSelected ? const Color(0xFF0D47A1) : Colors.grey[400],
+          color: isSelected ? const Color(0xFF0C44A6) : Colors.grey[400],
           size: 26,
         ),
       ),
@@ -836,7 +713,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
             // Base icon
             Icon(
               icon,
-              color: isSelected ? const Color(0xFF0D47A1) : Colors.grey[400],
+              color: isSelected ? const Color(0xFF0C44A6) : Colors.grey[400],
               size: 26,
             ),
             // Badge (only shown if count > 0)

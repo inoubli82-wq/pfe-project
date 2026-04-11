@@ -139,7 +139,7 @@ class AppStatusBadge extends StatelessWidget {
 
   Color get _backgroundColor {
     if (customBackgroundColor != null) return customBackgroundColor!;
-    return _color.withOpacity(0.1);
+    return _color.withValues(alpha: 0.1);
   }
 
   @override
@@ -149,7 +149,7 @@ class AppStatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: _backgroundColor,
         borderRadius: BorderRadius.circular(AppDimensions.radiusRound),
-        border: Border.all(color: _color.withOpacity(0.3)),
+        border: Border.all(color: _color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -228,9 +228,9 @@ class AppRoleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: _color.withOpacity(0.1),
+        color: _color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppDimensions.radiusRound),
-        border: Border.all(color: _color.withOpacity(0.3)),
+        border: Border.all(color: _color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

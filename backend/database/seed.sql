@@ -24,19 +24,21 @@ ALTER SEQUENCE imports_id_seq RESTART WITH 1;
 -- INSERT TEST USERS
 -- Passwords will be hashed by the init script
 -- ===========================================
-INSERT INTO users (full_name, email, phone, country_code, user_type, password, status)
+INSERT INTO users (full_name, email, phone, country_code, user_type, transporter, password, status)
 VALUES 
-    ('Admin Principal', 'admin@test.com', '12345678', '+216', 'admin', 'HASH_PLACEHOLDER_admin123', 'active'),
-    ('Agent Export Test', 'export@test.com', '98765432', '+216', 'Agent Export', 'HASH_PLACEHOLDER_export123', 'active'),
-    ('Agent Import Test', 'import@test.com', '55555555', '+216', 'Agent Import', 'HASH_PLACEHOLDER_import123', 'active'),
-    (' Partenaire Test', 'partenaire@test.com', '55555522', '+216', 'Partenaire', 'HASH_PLACEHOLDER_partenaire123', 'active');
+    ('Admin Principal', 'admin@test.com', '12345678', '+216', 'admin', NULL, 'HASH_PLACEHOLDER_admin123', 'active'),
+    ('Agent Export Test', 'export@test.com', '98765432', '+216', 'Agent Export', NULL, 'HASH_PLACEHOLDER_export123', 'active'),
+    ('Agent Import Test', 'import@test.com', '55555555', '+216', 'Agent Import', NULL, 'HASH_PLACEHOLDER_import123', 'active'),
+    ('Partenaire DHL', 'partenaire@test.com', '55555522', '+216', 'Partenaire', 'DHL', 'HASH_PLACEHOLDER_partenaire123', 'active'),
+    ('Partenaire AST', 'ast@test.com', '55555523', '+216', 'Partenaire', 'AST', 'HASH_PLACEHOLDER_partenaire123', 'active'),
+    ('Partenaire TRANSUNIVERS', 'transunivers@test.com', '55555524', '+216', 'Partenaire', 'TRANSUNIVERS', 'HASH_PLACEHOLDER_partenaire123', 'active');
 
 -- ===========================================
 -- INSERT SAMPLE EXPORTS
 -- ===========================================
 INSERT INTO exports (trailer_number, export_date, client_name, country, transporter, bars_count, singles_count, status, created_by)
 VALUES 
-    ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'Trasuniverse', 50, 100, 'completed', 2),
+    ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'TRANSUNIVERS', 50, 100, 'completed', 2),
     ('TR-2024-002', '2024-02-05', 'Spain Import Co', '🇪🇸 Espagne', 'DHL', 30, 75, 'in_progress', 2),
     ('TR-2024-003', '2024-02-10', 'German Logistics', '🇩🇪 Allemagne', 'AST', 45, 120, 'pending', 1);
 

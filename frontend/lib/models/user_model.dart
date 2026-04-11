@@ -14,6 +14,7 @@ class User {
   final String fullName;
   final String email;
   final String phone;
+  final String? transporter;
   final UserRole role;
   final String? token;
   final DateTime createdAt;
@@ -23,6 +24,7 @@ class User {
     required this.fullName,
     required this.email,
     required this.phone,
+    this.transporter,
     required this.role,
     this.token,
     required this.createdAt,
@@ -81,6 +83,7 @@ class User {
       fullName: json['fullName'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
+      transporter: json['transporter'],
       role: stringToRole(json['userType'] ?? json['role'] ?? 'Agent Export'),
       token: token ?? json['token'],
       createdAt: json['createdAt'] != null
@@ -96,6 +99,7 @@ class User {
       'fullName': fullName,
       'email': email,
       'phone': phone,
+      'transporter': transporter,
       'userType': roleToApiString(role),
       'role': roleToApiString(role),
       'token': token,
@@ -108,6 +112,13 @@ class User {
   bool get isAgentExport => role == UserRole.agentExport;
   bool get isAgentImport => role == UserRole.agentImport;
   bool get isPartenaire => role == UserRole.partenaire;
+
+  String get displayRoleLabel {
+    if (isPartenaire && transporter != null && transporter!.isNotEmpty) {
+      return '$transporter Partenaire';
+    }
+    return roleToString(role);
+  }
 
   // Check if user can access certain features
   bool canCreateExport() => isAdmin || isAgentExport;

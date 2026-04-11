@@ -114,7 +114,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: Colors.purple.withOpacity(0.2),
+              color: Colors.purple.withValues(alpha: 0.2),
               shape: BoxShape.circle,
               border: Border.all(color: Colors.purple, width: 2),
             ),
@@ -131,7 +131,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Text(
                   'Bienvenue, Admin',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                 ),
@@ -184,8 +184,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         children: [
           Row(
             children: [
-              _buildStatCard(
-                  'Utilisateurs', '$totalUsers', Icons.people, Colors.blue),
+              _buildStatCard('Utilisateurs', '$totalUsers', Icons.people,
+                  const Color(0xFF0C44A6)),
               const SizedBox(width: 10),
               _buildStatCard(
                   'Exports', '$totalExports', Icons.upload, Colors.green),
@@ -199,13 +199,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: pendingTotal > 0
-                  ? Colors.amber.withOpacity(0.2)
-                  : Colors.green.withOpacity(0.2),
+                  ? Colors.amber.withValues(alpha: 0.2)
+                  : Colors.green.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(15),
               border: Border.all(
                 color: pendingTotal > 0
-                    ? Colors.amber.withOpacity(0.5)
-                    : Colors.green.withOpacity(0.5),
+                    ? Colors.amber.withValues(alpha: 0.5)
+                    : Colors.green.withValues(alpha: 0.5),
               ),
             ),
             child: Row(
@@ -221,7 +221,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       ? '$pendingTotal demande(s) en attente d\'approbation'
                       : 'Aucune demande en attente',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -239,9 +239,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [
@@ -258,7 +258,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Text(
               title,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 12,
               ),
             ),
@@ -287,7 +287,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             context,
             'Gérer Utilisateurs',
             Icons.people_alt,
-            Colors.blue,
+            const Color(0xFF0C44A6),
             () => _showFeatureDialog(context, 'Gestion des utilisateurs'),
           ),
           _buildMenuCard(
@@ -354,9 +354,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       borderRadius: BorderRadius.circular(15),
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Stack(
           children: [
@@ -367,7 +367,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.2),
+                      color: color.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(icon, color: color, size: 32),

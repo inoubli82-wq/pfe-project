@@ -106,6 +106,7 @@ class AuthProvider extends ChangeNotifier {
           fullName: name ?? '',
           email: email,
           phone: '',
+          transporter: await StorageService.getUserTransporter(),
           role: User.stringToRole(role),
           token: token,
           createdAt: DateTime.now(),
@@ -282,6 +283,7 @@ class AuthProvider extends ChangeNotifier {
       email: user.email,
       role: User.roleToApiString(user.role),
       name: user.fullName,
+      transporter: user.transporter,
     );
   }
 

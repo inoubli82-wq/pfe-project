@@ -40,7 +40,7 @@ class DashboardHeader extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 10,
                 ),
               ],
@@ -92,7 +92,7 @@ class DashboardHeader extends StatelessWidget {
           // Logout
           Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -126,7 +126,7 @@ class DashboardHeader extends StatelessWidget {
       case UserRole.agentExport:
         return Colors.green;
       case UserRole.agentImport:
-        return Colors.blue;
+        return const Color(0xFF0C44A6);
       case UserRole.partenaire:
         return Colors.orange;
     }

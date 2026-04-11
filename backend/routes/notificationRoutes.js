@@ -17,17 +17,17 @@ router.get("/", notificationController.getNotifications);
 // GET /api/notifications/unread-count - Get unread count
 router.get("/unread-count", notificationController.getUnreadCount);
 
-// GET /api/notifications/pending-requests - Get pending requests (Partenaire & Admin)
+// GET /api/notifications/pending-requests - Get pending requests
 router.get(
   "/pending-requests",
-  checkRole(ROLES.PARTENAIRE, ROLES.ADMIN),
+  checkRole(ROLES.PARTENAIRE, ROLES.ADMIN, ROLES.AGENT_IMPORT),
   notificationController.getPendingRequests,
 );
 
-// POST /api/notifications/decision - Approve or reject request (Partenaire only)
+// POST /api/notifications/decision - Approve or reject request
 router.post(
   "/decision",
-  checkRole(ROLES.PARTENAIRE),
+  checkRole(ROLES.PARTENAIRE, ROLES.AGENT_IMPORT, ROLES.ADMIN),
   notificationController.handleDecision,
 );
 

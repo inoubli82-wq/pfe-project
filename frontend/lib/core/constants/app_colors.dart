@@ -11,10 +11,10 @@ class AppColors {
   AppColors._(); // Private constructor - prevents instantiation
 
   // ==================== PRIMARY COLORS ====================
-  static const Color primary = Color(0xFF1A237E); // Indigo 900
-  static const Color primaryLight = Color(0xFF534bae);
-  static const Color primaryDark = Color(0xFF000051);
-  static const Color primaryBlue = Color(0xFF0D47A1); // Blue 900
+  static const Color primary = Color(0xFF0C44A6);
+  static const Color primaryLight = Color(0xFF0C44A6);
+  static const Color primaryDark = Color(0xFF0C44A6);
+  static const Color primaryBlue = Color(0xFF0C44A6);
 
   // ==================== SECONDARY COLORS ====================
   static const Color secondary = Color(0xFFFF6F00); // Amber 900
@@ -33,8 +33,8 @@ class AppColors {
   static const Color errorLight = Color(0xFFFFEBEE);
   static const Color warning = Color(0xFFFF9800);
   static const Color warningLight = Color(0xFFFFF3E0);
-  static const Color info = Color(0xFF2196F3);
-  static const Color infoLight = Color(0xFFE3F2FD);
+  static const Color info = Color(0xFF0C44A6);
+  static const Color infoLight = Color(0xFF0C44A6);
 
   // ==================== TEXT COLORS ====================
   static const Color textPrimary = Color(0xFF212121);
@@ -49,7 +49,7 @@ class AppColors {
   static const Color divider = Color(0xFFEEEEEE);
 
   // ==================== ROLE-SPECIFIC COLORS ====================
-  static const Color adminColor = Color(0xFF1A237E);
+  static const Color adminColor = Color(0xFF0C44A6);
   static const Color importColor = Color(0xFF2E7D32);
   static const Color exportColor = Color(0xFFE65100);
   static const Color partenaireColor = Color(0xFF6A1B9A);
@@ -68,6 +68,6 @@ class AppColors {
   );
 
   // ==================== SHADOW COLORS ====================
-  static Color shadowColor = Colors.black.withOpacity(0.1);
-  static Color shadowColorDark = Colors.black.withOpacity(0.2);
+  static Color shadowColor = Colors.black.withValues(alpha: 0.1);
+  static Color shadowColorDark = Colors.black.withValues(alpha: 0.2);
 }

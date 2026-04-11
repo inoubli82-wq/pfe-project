@@ -141,7 +141,7 @@ class AppButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primaryBlue,
             foregroundColor: Colors.white,
-            disabledBackgroundColor: AppColors.primaryBlue.withOpacity(0.5),
+            disabledBackgroundColor: AppColors.primaryBlue.withValues(alpha: 0.5),
             disabledForegroundColor: Colors.white70,
             elevation: 0,
             padding: padding,

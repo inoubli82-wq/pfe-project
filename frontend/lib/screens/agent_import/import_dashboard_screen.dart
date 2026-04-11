@@ -5,6 +5,8 @@ import 'package:import_export_app/screens/common/notifications_screen.dart';
 import 'package:import_export_app/services/api_service.dart';
 import 'package:import_export_app/widgets/widgets.dart';
 
+import 'verify_partner_export_requests_screen.dart';
+
 // ===========================================
 // IMPORT AGENT DASHBOARD
 // ===========================================
@@ -82,11 +84,11 @@ class _ImportDashboardScreenState extends State<ImportDashboardScreen> {
                   margin: const EdgeInsets.all(20),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
+                    color: Colors.white.withValues(alpha: 0.95),
                     borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -99,53 +101,31 @@ class _ImportDashboardScreenState extends State<ImportDashboardScreen> {
 
                       const SizedBox(height: 30),
 
-                      // Create Import Button
+                      // Verify Partner Export Requests Button
                       ActionCardButton(
-                        title: 'Créer un dossier import',
-                        subtitle: 'Démarrer une nouvelle importation',
-                        icon: Icons.add_box,
-                        color: Colors.blue.shade700,
-                        onTap: () =>
-                            _showFeatureDialog(context, 'Créer Import'),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Track Import Button
-                      ActionCardButton(
-                        title: 'Suivre l\'import',
-                        subtitle: 'Suivre le statut de vos importations',
-                        icon: Icons.track_changes,
-                        color: Colors.teal,
-                        onTap: () =>
-                            _showFeatureDialog(context, 'Suivi Import'),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Notifications Button
-                      ActionCardButton(
-                        title: 'Notifications',
-                        subtitle: 'Voir les mises à jour de vos demandes',
-                        icon: Icons.notifications,
-                        color: Colors.orange,
-                        badgeCount: _unreadCount,
+                        title: 'Vérifier export partenaire',
+                        subtitle:
+                            'Traiter les demandes export en attente des partenaires',
+                        icon: Icons.fact_check,
+                        color: const Color(0xFF0C44A6),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  NotificationsScreen(user: widget.user),
+                                  const VerifyPartnerExportRequestsScreen(),
                             ),
-                          ).then((_) => _loadUnreadCount());
+                          );
                         },
                       ),
+
+                      const SizedBox(height: 20),
 
                       const Spacer(),
 
                       // Info Text
                       Text(
-                        'Les demandes d\'import nécessitent l\'approbation du partenaire',
+                        'Vous traitez uniquement les demandes d\'export créées par les partenaires',
                         style: TextStyle(
                           color: Colors.grey[500],
                           fontSize: 12,
@@ -159,25 +139,6 @@ class _ImportDashboardScreenState extends State<ImportDashboardScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showFeatureDialog(BuildContext context, String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(feature),
-        content: const Text('Cette fonctionnalité sera bientôt disponible.'),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }

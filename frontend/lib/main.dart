@@ -36,6 +36,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static const String _appBackgroundImage =
+      'assets/images/backgrounds/login_background.jpg';
+
   @override
   Widget build(BuildContext context) {
     // Wrap app with MultiProvider for scalability
@@ -69,11 +72,29 @@ class MyApp extends StatelessWidget {
               // Apply responsive text scaling
               final mediaQuery = MediaQuery.of(context);
               final scale = mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2);
+
+              Widget wrappedChild = child!;
+              if (child is! SplashScreen) {
+                wrappedChild = Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(_appBackgroundImage),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Color(0x99000000),
+                        BlendMode.darken,
+                      ),
+                    ),
+                  ),
+                  child: child,
+                );
+              }
+
               return MediaQuery(
                 data: mediaQuery.copyWith(
                   textScaler: TextScaler.linear(scale),
                 ),
-                child: child!,
+                child: wrappedChild,
               );
             },
           );

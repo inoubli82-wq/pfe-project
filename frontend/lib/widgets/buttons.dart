@@ -183,7 +183,7 @@ class ActionCardButton extends StatelessWidget {
                       image: AssetImage(backgroundImage!),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(0.4), // Darken for readability
+                        Colors.black.withValues(alpha: 0.4), // Darken for readability
                         BlendMode.darken,
                       ),
                     ),
@@ -201,8 +201,8 @@ class ActionCardButton extends StatelessWidget {
                         height: 60,
                         decoration: BoxDecoration(
                           color: backgroundImage != null
-                              ? Colors.white.withOpacity(0.2)
-                              : color.withOpacity(0.1),
+                              ? Colors.white.withValues(alpha: 0.2)
+                              : color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -256,7 +256,7 @@ class ActionCardButton extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 14,
                               color: backgroundImage != null
-                                  ? Colors.white.withOpacity(0.9)
+                                  ? Colors.white.withValues(alpha: 0.9)
                                   : Colors.grey[600],
                             ),
                           ),
@@ -268,7 +268,7 @@ class ActionCardButton extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward_ios,
                     color: backgroundImage != null
-                        ? Colors.white.withOpacity(0.8)
+                        ? Colors.white.withValues(alpha: 0.8)
                         : color,
                     size: 16,
                   ),

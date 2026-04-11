@@ -81,7 +81,7 @@ class CounterRow extends StatelessWidget {
         child: Icon(
           icon,
           size: 20,
-          color: enabled ? const Color(0xFF0D47A1) : Colors.grey[300],
+          color: enabled ? const Color(0xFF0C44A6) : Colors.grey[300],
         ),
       ),
     );

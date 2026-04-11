@@ -27,6 +27,7 @@ class StorageService {
   static const String _userEmailKey = 'user_email';
   static const String _userRoleKey = 'user_role';
   static const String _userNameKey = 'user_name';
+  static const String _userTransporterKey = 'user_transporter';
   static const String _rememberMeKey = 'remember_me';
   static const String _themeKey = 'app_theme';
   static const String _languageKey = 'app_language';
@@ -79,12 +80,15 @@ class StorageService {
     required String email,
     required String role,
     String? name,
+    String? transporter,
   }) async {
     await Future.wait([
       _secureStorage.write(key: _userIdKey, value: id),
       _secureStorage.write(key: _userEmailKey, value: email),
       _secureStorage.write(key: _userRoleKey, value: role),
       if (name != null) _secureStorage.write(key: _userNameKey, value: name),
+      if (transporter != null)
+        _secureStorage.write(key: _userTransporterKey, value: transporter),
     ]);
   }
 
@@ -108,6 +112,11 @@ class StorageService {
     return await _secureStorage.read(key: _userNameKey);
   }
 
+  /// Get user transporter
+  static Future<String?> getUserTransporter() async {
+    return await _secureStorage.read(key: _userTransporterKey);
+  }
+
   /// Delete user data
   static Future<void> deleteUserData() async {
     await Future.wait([
@@ -115,6 +124,7 @@ class StorageService {
       _secureStorage.delete(key: _userEmailKey),
       _secureStorage.delete(key: _userRoleKey),
       _secureStorage.delete(key: _userNameKey),
+      _secureStorage.delete(key: _userTransporterKey),
     ]);
   }
 

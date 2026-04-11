@@ -46,7 +46,7 @@ class StatsCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: color, size: 24),
@@ -110,7 +110,8 @@ class RequestCard extends StatelessWidget {
     this.trailing,
   });
 
-  Color get _typeColor => type == 'export' ? Colors.green : Colors.blue;
+  Color get _typeColor =>
+      type == 'export' ? Colors.green : const Color(0xFF0C44A6);
 
   Color get _statusColor {
     switch (approvalStatus) {
@@ -141,7 +142,7 @@ class RequestCard extends StatelessWidget {
       elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: _typeColor.withOpacity(0.3)),
+        side: BorderSide(color: _typeColor.withValues(alpha: 0.3)),
       ),
       child: InkWell(
         onTap: onTap,
@@ -163,7 +164,7 @@ class RequestCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _typeColor.withOpacity(0.1),
+                          color: _typeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -191,7 +192,7 @@ class RequestCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _statusColor.withOpacity(0.1),
+                      color: _statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: _statusColor),
                     ),
@@ -309,7 +310,7 @@ class NotificationCard extends StatelessWidget {
       case 'export_request':
         return Colors.green;
       case 'import_request':
-        return Colors.blue;
+        return const Color(0xFF0C44A6);
       case 'approval':
         return Colors.green;
       case 'rejection':
@@ -335,7 +336,7 @@ class NotificationCard extends StatelessWidget {
       ),
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        color: isRead ? Colors.white : Colors.blue.shade50,
+        color: isRead ? Colors.white : const Color(0xFF0C44A6),
         elevation: isRead ? 1 : 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -354,7 +355,7 @@ class NotificationCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: _color.withOpacity(0.1),
+                    color: _color.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(_icon, color: _color, size: 24),
@@ -405,7 +406,7 @@ class NotificationCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.2),
+                            color: Colors.orange.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
@@ -427,7 +428,7 @@ class NotificationCard extends StatelessWidget {
                     height: 10,
                     margin: const EdgeInsets.only(left: 8),
                     decoration: const BoxDecoration(
-                      color: Colors.blue,
+                      color: Color(0xFF0C44A6),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -478,7 +479,7 @@ class RoleBadge extends StatelessWidget {
       case 'agent export':
         return Colors.green;
       case 'agent import':
-        return Colors.blue;
+        return const Color(0xFF0C44A6);
       case 'partenaire':
         return Colors.orange;
       default:
@@ -506,7 +507,7 @@ class RoleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: _color.withOpacity(0.1),
+        color: _color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _color),
       ),

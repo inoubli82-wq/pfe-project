@@ -45,6 +45,27 @@ const testUsers = [
     phone: "71001110",
     country_code: "+216",
     user_type: "Partenaire",
+    transporter: "DHL",
+    password: "partenaire123",
+    status: "active",
+  },
+  {
+    full_name: "partenaire AST",
+    email: "ast@test.com",
+    phone: "71001111",
+    country_code: "+216",
+    user_type: "Partenaire",
+    transporter: "AST",
+    password: "partenaire123",
+    status: "active",
+  },
+  {
+    full_name: "partenaire TRANSUNIVERS",
+    email: "transunivers@test.com",
+    phone: "71001112",
+    country_code: "+216",
+    user_type: "Partenaire",
+    transporter: "TRANSUNIVERS",
     password: "partenaire123",
     status: "active",
   },
@@ -341,14 +362,15 @@ async function seedUsers() {
 
     // Insert user
     await query(
-      `INSERT INTO users (full_name, email, phone, country_code, user_type, password, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      `INSERT INTO users (full_name, email, phone, country_code, user_type, transporter, password, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         user.full_name,
         user.email,
         user.phone,
         user.country_code,
         user.user_type,
+        user.transporter || null,
         hashedPassword,
         user.status,
       ],
@@ -385,7 +407,7 @@ async function seedSampleData() {
     await query(
       `INSERT INTO exports (trailer_number, export_date, client_name, country, transporter, bars_count, singles_count, status, created_by)
        VALUES 
-         ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'Trasuniverse', 50, 100, 'completed', $1),
+         ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'TRANSUNIVERS', 50, 100, 'completed', $1),
          ('TR-2024-002', '2024-02-05', 'Spain Import Co', '🇪🇸 Espagne', 'DHL', 30, 75, 'in_progress', $2),
          ('TR-2024-003', '2024-02-10', 'German Logistics', '🇩🇪 Allemagne', 'AST', 45, 120, 'pending', $3)`,
       [exportId, exportId, adminId],
@@ -424,7 +446,13 @@ async function displaySummary() {
   console.log("   🔴 Admin:        admin@test.com / admin123");
   console.log("   🟢 Agent Export: export@test.com / export123");
   console.log("   🔵 Agent Import: import@test.com / import123");
-  console.log("   🟣 Partenaire:   partenaire@test.com / partenaire123");
+  console.log(
+    "   🟣 Partenaire DHL:        partenaire@test.com / partenaire123",
+  );
+  console.log("   🟣 Partenaire AST:        ast@test.com / partenaire123");
+  console.log(
+    "   🟣 Partenaire TRANSUNIVERS: transunivers@test.com / partenaire123",
+  );
 }
 
 // Run initialization

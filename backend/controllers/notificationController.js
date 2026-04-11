@@ -44,6 +44,9 @@ const createNotification = async (notificationData) => {
   }
 };
 
+const normalizeTransporter = (value) =>
+  typeof value === "string" ? value.trim().toUpperCase() : "";
+
 /**
  * Send notifications to partenaire and admin for new request
  * @param {string} requestType - 'export' or 'import'
@@ -52,10 +55,19 @@ const createNotification = async (notificationData) => {
  */
 const notifyForNewRequest = async (requestType, requestData, senderId) => {
   try {
-    // Get all partenaires and admins
-    const recipients = await getMany(
-      `SELECT id, user_type FROM users WHERE user_type IN ($1, $2) AND status = 'active'`,
-      [ROLES.PARTENAIRE, ROLES.ADMIN],
+    const transporter = normalizeTransporter(requestData.transporter);
+
+    const partnerQuery = transporter
+      ? `SELECT id, user_type FROM users WHERE user_type = $1 AND status = 'active' AND UPPER(COALESCE(transporter, '')) = $2`
+      : `SELECT id, user_type FROM users WHERE user_type = $1 AND status = 'active'`;
+
+    const partners = await getMany(
+      partnerQuery,
+      transporter ? [ROLES.PARTENAIRE, transporter] : [ROLES.PARTENAIRE],
+    );
+    const admins = await getMany(
+      `SELECT id, user_type FROM users WHERE user_type = $1 AND status = 'active'`,
+      [ROLES.ADMIN],
     );
 
     const senderUser = await getOne(
@@ -74,7 +86,7 @@ const notifyForNewRequest = async (requestType, requestData, senderId) => {
         ? requestData.trailer_number
         : requestData.trailer_number;
 
-    for (const recipient of recipients) {
+    for (const recipient of partners) {
       const actionRequired = recipient.user_type === ROLES.PARTENAIRE;
       const message =
         requestType === "export"
@@ -90,6 +102,24 @@ const notifyForNewRequest = async (requestType, requestData, senderId) => {
         senderId,
         recipientId: recipient.id,
         actionRequired,
+      });
+    }
+
+    for (const recipient of admins) {
+      const message =
+        requestType === "export"
+          ? `${senderName} a créé une demande d'export (${identifier}).`
+          : `${senderName} a créé une demande d'import (${identifier}).`;
+
+      await createNotification({
+        type: `${requestType}_request`,
+        title,
+        message,
+        referenceType: requestType,
+        referenceId: requestData.id,
+        senderId,
+        recipientId: recipient.id,
+        actionRequired: false,
       });
     }
 
@@ -306,14 +336,60 @@ const markAllAsRead = async (req, res) => {
  */
 const getPendingRequests = async (req, res) => {
   try {
+    const isPartner = req.user.user_type === ROLES.PARTENAIRE;
+    const isAgentImport = req.user.user_type === ROLES.AGENT_IMPORT;
+    const transporter = normalizeTransporter(req.user.transporter);
+
+    const exportFilter =
+      isPartner && transporter
+        ? " AND UPPER(COALESCE(e.transporter, '')) = $1"
+        : "";
+    const importFilter =
+      isPartner && transporter
+        ? " AND UPPER(COALESCE(i.transporter, '')) = $1"
+        : "";
+
+    const exportCreatorFilter = isAgentImport
+      ? " AND UPPER(COALESCE(u.user_type, '')) = UPPER($1)"
+      : "";
+    const exportParams =
+      isPartner && transporter
+        ? [transporter, ROLES.PARTENAIRE]
+        : isAgentImport
+          ? [ROLES.PARTENAIRE]
+          : [];
+
     // Get pending exports
-    const pendingExports = await getMany(
+    let pendingExports = await getMany(
       `SELECT e.*, u.full_name as created_by_name, 'export' as type
        FROM exports e
        LEFT JOIN users u ON e.created_by = u.id
        WHERE e.approval_status = 'pending'
+       ${exportFilter}
+       ${exportCreatorFilter}
        ORDER BY e.created_at DESC`,
+      exportParams,
     );
+
+    // For AgentImport, also get partner exports from partenaire_export_data
+    if (isAgentImport) {
+      const partnerExports = await getMany(
+        `SELECT p.*, u.full_name as created_by_name, 'export' as type
+         FROM partenaire_export_data p
+         LEFT JOIN users u ON p.created_by = u.id
+         WHERE p.approval_status = 'pending'
+         ORDER BY p.created_at DESC`,
+        [],
+      );
+      pendingExports = [...pendingExports, ...partnerExports];
+
+      return res.json({
+        success: true,
+        pendingExports,
+        pendingImports: [],
+        totalPending: pendingExports.length,
+      });
+    }
 
     // Get pending imports
     const pendingImports = await getMany(
@@ -321,7 +397,9 @@ const getPendingRequests = async (req, res) => {
        FROM imports i
        LEFT JOIN users u ON i.created_by = u.id
        WHERE i.approval_status = 'pending'
+       ${importFilter}
        ORDER BY i.created_at DESC`,
+      isPartner && transporter ? [transporter] : [],
     );
 
     res.json({
@@ -347,6 +425,9 @@ const handleDecision = async (req, res) => {
   const { requestType, requestId, decision, reason } = req.body;
 
   try {
+    const isPartner = req.user.user_type === ROLES.PARTENAIRE;
+    const isAgentImport = req.user.user_type === ROLES.AGENT_IMPORT;
+
     if (!["export", "import"].includes(requestType)) {
       return res.status(400).json({
         success: false,
@@ -361,7 +442,58 @@ const handleDecision = async (req, res) => {
       });
     }
 
+    if (isAgentImport && requestType !== "export") {
+      return res.status(403).json({
+        success: false,
+        message:
+          "L'agent import ne peut traiter que les demandes d'export partenaire",
+      });
+    }
+
     const tableName = requestType === "export" ? "exports" : "imports";
+
+    const existingRequest = await getOne(
+      `SELECT * FROM ${tableName} WHERE id = $1`,
+      [requestId],
+    );
+
+    if (!existingRequest) {
+      return res.status(404).json({
+        success: false,
+        message: "Demande non trouvée",
+      });
+    }
+
+    const currentUserTransporter = normalizeTransporter(req.user.transporter);
+    const requestTransporter = normalizeTransporter(
+      existingRequest.transporter,
+    );
+
+    if (
+      isPartner &&
+      currentUserTransporter &&
+      requestTransporter &&
+      currentUserTransporter !== requestTransporter
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Cette demande ne correspond pas à votre transporteur",
+      });
+    }
+
+    if (isAgentImport && requestType === "export") {
+      const creator = await getOne(
+        "SELECT user_type FROM users WHERE id = $1",
+        [existingRequest.created_by],
+      );
+
+      if (!creator || creator.user_type !== ROLES.PARTENAIRE) {
+        return res.status(403).json({
+          success: false,
+          message: "Cette demande n'est pas une demande d'export partenaire",
+        });
+      }
+    }
 
     // Update the request
     const result = await query(

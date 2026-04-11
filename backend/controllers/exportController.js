@@ -38,7 +38,7 @@ const createExport = async (req, res) => {
         date,
         clientName,
         country,
-        transporter || "",
+        transporter || null,
         barsCount || 0,
         singlesCount || 0,
         notes || "",

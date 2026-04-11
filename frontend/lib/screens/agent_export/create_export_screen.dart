@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../services/api_service.dart';
 import '../../models/agent_export_data.dart';
+import '../../services/api_service.dart';
 
 class CreateExportPage extends StatefulWidget {
   const CreateExportPage({super.key});
@@ -216,7 +216,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
     '🇿🇼 Zimbabwe'
   ];
 
-  final List<String> _transporters = ['Trasuniverse', 'DHL', 'AST'];
+  final List<String> _transporters = ['DHL', 'AST', 'TRANSUNIVERS'];
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -366,7 +366,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
           Container(
             width: double.infinity,
             height: double.infinity,
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
           ),
 
           // Bouton retour en haut à gauche
@@ -397,7 +397,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                 borderRadius: BorderRadius.circular(25.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     blurRadius: 30.0,
                     spreadRadius: 5.0,
                     offset: const Offset(0, 10),
@@ -653,7 +653,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                 IconButton(
                                   icon: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.1),
+                                      color: Colors.red.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -691,7 +691,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                 IconButton(
                                   icon: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.green.withOpacity(0.1),
+                                      color: Colors.green.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -741,7 +741,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                 IconButton(
                                   icon: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.1),
+                                      color: Colors.red.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -772,14 +772,14 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                     style: const TextStyle(
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF4299E1),
+                                      color: Color(0xFF0C44A6),
                                     ),
                                   ),
                                 ),
                                 IconButton(
                                   icon: Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.green.withOpacity(0.1),
+                                      color: Colors.green.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -812,13 +812,13 @@ class _CreateExportPageState extends State<CreateExportPage> {
                             backgroundColor: const Color(0xFF0C44A6),
                             foregroundColor: Colors.white,
                             disabledBackgroundColor:
-                                const Color(0xFF0C44A6).withOpacity(0.6),
+                                const Color(0xFF0C44A6).withValues(alpha: 0.6),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             elevation: 8.0,
                             shadowColor:
-                                const Color(0xFF0C44A6).withOpacity(0.5),
+                                const Color(0xFF0C44A6).withValues(alpha: 0.5),
                           ),
                           child: _isLoading
                               ? const SizedBox(

@@ -283,7 +283,7 @@ class AppSnackBar {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF0C44A6),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -332,7 +332,7 @@ class RequestDetailDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isExport = type == 'export';
-    final color = isExport ? Colors.green : Colors.blue;
+    final color = isExport ? Colors.green : const Color(0xFF0C44A6);
 
     return AlertDialog(
       title: Row(

@@ -37,7 +37,7 @@ const createImport = async (req, res) => {
         date,
         supplierName,
         country,
-        transporter || "",
+        transporter || null,
         itemsCount || 0,
         notes || "",
         req.user.id,
