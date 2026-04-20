@@ -156,52 +156,65 @@ class RequestCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _typeColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            type.toUpperCase(),
+                            style: TextStyle(
+                              color: _typeColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            trailerNumber,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
+                          horizontal: 10,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _typeColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          color: _statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _statusColor),
                         ),
                         child: Text(
-                          type.toUpperCase(),
+                          _statusText,
                           style: TextStyle(
-                            color: _typeColor,
-                            fontWeight: FontWeight.bold,
+                            color: _statusColor,
+                            fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        trailerNumber,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: _statusColor),
-                    ),
-                    child: Text(
-                      _statusText,
-                      style: TextStyle(
-                        color: _statusColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
                       ),
                     ),
                   ),

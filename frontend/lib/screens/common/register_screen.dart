@@ -458,17 +458,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           value: country['code'],
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 8),
-                                            child: Row(
-                                              children: [
-                                                Text(country['flag']!,
-                                                    style: const TextStyle(
-                                                        fontSize: 14)),
-                                                const SizedBox(width: 4),
-                                                Text(country['code']!,
-                                                    style: const TextStyle(
-                                                        fontSize: 14)),
-                                              ],
+                                                horizontal: 4),
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(country['flag']!,
+                                                      style: const TextStyle(
+                                                          fontSize: 14)),
+                                                  const SizedBox(width: 4),
+                                                  Text(country['code']!,
+                                                      style: const TextStyle(
+                                                          fontSize: 14)),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         );
@@ -558,7 +563,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.grey.withValues(alpha: 0.1),
+                                          color: Colors.grey
+                                              .withValues(alpha: 0.1),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),
                                         ),

@@ -183,97 +183,117 @@ class ActionCardButton extends StatelessWidget {
                       image: AssetImage(backgroundImage!),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
-                        Colors.black.withValues(alpha: 0.4), // Darken for readability
+                        Colors.black
+                            .withValues(alpha: 0.4), // Darken for readability
                         BlendMode.darken,
                       ),
                     ),
                   )
                 : null,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  // Icon with optional badge
-                  Stack(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bool compact =
+                    constraints.maxHeight < 90 || constraints.maxWidth < 360;
+                final double boxSize = compact ? 40 : 60;
+                final double iconSize = compact ? 22 : 35;
+                final double horizontalSpace = compact ? 10 : 20;
+                final EdgeInsets contentPadding = EdgeInsets.symmetric(
+                  horizontal: compact ? 12 : 20,
+                  vertical: compact ? 8 : 20,
+                );
+
+                return Padding(
+                  padding: contentPadding,
+                  child: Row(
                     children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: backgroundImage != null
-                              ? Colors.white.withValues(alpha: 0.2)
-                              : color.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          icon,
-                          size: 35,
-                          color: backgroundImage != null ? Colors.white : color,
-                        ),
-                      ),
-                      if (badgeCount != null && badgeCount! > 0)
-                        Positioned(
-                          right: -2,
-                          top: -2,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
+                      Stack(
+                        children: [
+                          Container(
+                            width: boxSize,
+                            height: boxSize,
+                            decoration: BoxDecoration(
+                              color: backgroundImage != null
+                                  ? Colors.white.withValues(alpha: 0.2)
+                                  : color.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text(
-                              badgeCount! > 99 ? '99+' : '$badgeCount',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                            child: Icon(
+                              icon,
+                              size: iconSize,
+                              color: backgroundImage != null
+                                  ? Colors.white
+                                  : color,
+                            ),
+                          ),
+                          if (badgeCount != null && badgeCount! > 0)
+                            Positioned(
+                              right: -2,
+                              top: -2,
+                              child: Container(
+                                padding: EdgeInsets.all(compact ? 4 : 6),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  badgeCount! > 99 ? '99+' : '$badgeCount',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: compact ? 8 : 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                        ],
+                      ),
+                      SizedBox(width: horizontalSpace),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: compact ? 15 : 18,
+                                fontWeight: FontWeight.bold,
+                                color: backgroundImage != null
+                                    ? Colors.white
+                                    : color,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (subtitle.isNotEmpty && !compact) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                subtitle,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: backgroundImage != null
+                                      ? Colors.white.withValues(alpha: 0.9)
+                                      : Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
                         ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: backgroundImage != null
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : color,
+                        size: compact ? 14 : 16,
+                      ),
                     ],
                   ),
-                  const SizedBox(width: 20),
-                  // Text
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color:
-                                backgroundImage != null ? Colors.white : color,
-                          ),
-                        ),
-                        if (subtitle.isNotEmpty) ...[
-                          const SizedBox(height: 5),
-                          Text(
-                            subtitle,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: backgroundImage != null
-                                  ? Colors.white.withValues(alpha: 0.9)
-                                  : Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  // Arrow
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    color: backgroundImage != null
-                        ? Colors.white.withValues(alpha: 0.8)
-                        : color,
-                    size: 16,
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),

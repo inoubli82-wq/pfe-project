@@ -149,9 +149,17 @@ const notifyForDecision = async (
   try {
     // Get the original request creator
     const tableName = requestType === "export" ? "exports" : "imports";
-    const request = await getOne(`SELECT * FROM ${tableName} WHERE id = $1`, [
+    let request = await getOne(`SELECT * FROM ${tableName} WHERE id = $1`, [
       requestId,
     ]);
+
+    // Export requests may come from partenaire_export_data workflow.
+    if (!request && requestType === "export") {
+      request = await getOne(
+        `SELECT * FROM partenaire_export_data WHERE id = $1`,
+        [requestId],
+      );
+    }
 
     if (!request) return;
 
@@ -172,10 +180,12 @@ const notifyForDecision = async (
         ? `Demande ${requestType === "export" ? "d'export" : "d'import"} approuvée`
         : `Demande ${requestType === "export" ? "d'export" : "d'import"} refusée`;
 
+    const requestIdentifier = request.trailer_number || `#${requestId}`;
+
     const message =
       decision === "approved"
-        ? `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${request.trailer_number}) a été approuvée par ${partenaireName}.`
-        : `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${request.trailer_number}) a été refusée par ${partenaireName}. ${reason ? `Raison: ${reason}` : ""}`;
+        ? `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}) a été approuvée par ${partenaireName}.`
+        : `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}) a été refusée par ${partenaireName}. ${reason ? `Raison: ${reason}` : ""}`;
 
     // Notify the creator
     if (request.created_by) {
@@ -192,7 +202,7 @@ const notifyForDecision = async (
     }
 
     // Notify admins
-    const adminMessage = `${partenaireName} a ${decision === "approved" ? "approuvé" : "refusé"} la demande ${requestType === "export" ? "d'export" : "d'import"} (${request.trailer_number}).`;
+    const adminMessage = `${partenaireName} a ${decision === "approved" ? "approuvé" : "refusé"} la demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}).`;
 
     for (const admin of admins) {
       await createNotification({
@@ -354,14 +364,14 @@ const getPendingRequests = async (req, res) => {
       : "";
     const exportParams =
       isPartner && transporter
-        ? [transporter, ROLES.PARTENAIRE]
+        ? [transporter]
         : isAgentImport
           ? [ROLES.PARTENAIRE]
           : [];
 
     // Get pending exports
     let pendingExports = await getMany(
-      `SELECT e.*, u.full_name as created_by_name, 'export' as type
+      `SELECT e.*, u.full_name as created_by_name, 'export' as type, 'exports' as source_table
        FROM exports e
        LEFT JOIN users u ON e.created_by = u.id
        WHERE e.approval_status = 'pending'
@@ -374,12 +384,13 @@ const getPendingRequests = async (req, res) => {
     // For AgentImport, also get partner exports from partenaire_export_data
     if (isAgentImport) {
       const partnerExports = await getMany(
-        `SELECT p.*, u.full_name as created_by_name, 'export' as type
+        `SELECT p.*, u.full_name as created_by_name, 'export' as type, 'partenaire_export_data' as source_table
          FROM partenaire_export_data p
          LEFT JOIN users u ON p.created_by = u.id
          WHERE p.approval_status = 'pending'
+         AND UPPER(COALESCE(u.user_type, '')) = UPPER($1)
          ORDER BY p.created_at DESC`,
-        [],
+        [ROLES.PARTENAIRE],
       );
       pendingExports = [...pendingExports, ...partnerExports];
 
@@ -422,7 +433,15 @@ const getPendingRequests = async (req, res) => {
  * POST /api/notifications/decision
  */
 const handleDecision = async (req, res) => {
-  const { requestType, requestId, decision, reason } = req.body;
+  const {
+    requestType,
+    requestId,
+    decision,
+    reason,
+    sourceTable,
+    barsCount,
+    singlesCount,
+  } = req.body;
 
   try {
     const isPartner = req.user.user_type === ROLES.PARTENAIRE;
@@ -450,12 +469,25 @@ const handleDecision = async (req, res) => {
       });
     }
 
-    const tableName = requestType === "export" ? "exports" : "imports";
+    let tableName = requestType === "export" ? "exports" : "imports";
 
-    const existingRequest = await getOne(
+    if (sourceTable === "partenaire_export_data" && requestType === "export") {
+      tableName = "partenaire_export_data";
+    }
+
+    let existingRequest = await getOne(
       `SELECT * FROM ${tableName} WHERE id = $1`,
       [requestId],
     );
+
+    // Backward-compatible fallback for old clients that don't send sourceTable.
+    if (!existingRequest && requestType === "export" && isAgentImport) {
+      tableName = "partenaire_export_data";
+      existingRequest = await getOne(
+        `SELECT * FROM partenaire_export_data WHERE id = $1`,
+        [requestId],
+      );
+    }
 
     if (!existingRequest) {
       return res.status(404).json({
@@ -481,7 +513,7 @@ const handleDecision = async (req, res) => {
       });
     }
 
-    if (isAgentImport && requestType === "export") {
+    if (isAgentImport && requestType === "export" && tableName === "exports") {
       const creator = await getOne(
         "SELECT user_type FROM users WHERE id = $1",
         [existingRequest.created_by],
@@ -495,19 +527,66 @@ const handleDecision = async (req, res) => {
       }
     }
 
-    // Update the request
-    const result = await query(
-      `UPDATE ${tableName} 
-       SET approval_status = $1, approved_by = $2, approved_at = CURRENT_TIMESTAMP, rejection_reason = $3
-       WHERE id = $4
-       RETURNING *`,
-      [
-        decision,
-        req.user.id,
-        decision === "rejected" ? reason : null,
-        requestId,
-      ],
-    );
+    let result;
+    if (tableName === "partenaire_export_data") {
+      result = await query(
+        `UPDATE partenaire_export_data
+         SET approval_status = $1,
+             status = $2,
+             approved_by = $3,
+             approved_at = CURRENT_TIMESTAMP,
+             rejection_reason = $4,
+             number_of_bars = COALESCE($5, number_of_bars),
+             number_of_straps = COALESCE($6, number_of_straps)
+         WHERE id = $7
+         RETURNING *`,
+        [
+          decision,
+          decision,
+          req.user.id,
+          decision === "rejected" ? reason : null,
+          barsCount ?? null,
+          singlesCount ?? null,
+          requestId,
+        ],
+      );
+    } else if (tableName === "exports" && requestType === "export") {
+      result = await query(
+        `UPDATE exports
+         SET approval_status = $1,
+             approved_by = $2,
+             approved_at = CURRENT_TIMESTAMP,
+             rejection_reason = $3,
+             bars_count = COALESCE($4, bars_count),
+             singles_count = COALESCE($5, singles_count)
+         WHERE id = $6
+         RETURNING *`,
+        [
+          decision,
+          req.user.id,
+          decision === "rejected" ? reason : null,
+          barsCount ?? null,
+          singlesCount ?? null,
+          requestId,
+        ],
+      );
+    } else {
+      result = await query(
+        `UPDATE ${tableName}
+         SET approval_status = $1,
+             approved_by = $2,
+             approved_at = CURRENT_TIMESTAMP,
+             rejection_reason = $3
+         WHERE id = $4
+         RETURNING *`,
+        [
+          decision,
+          req.user.id,
+          decision === "rejected" ? reason : null,
+          requestId,
+        ],
+      );
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({

@@ -99,24 +99,15 @@ app.use((err, req, res, next) => {
 });
 
 // ==============================================
-// START SERVER
+// START SERVER (skip if in test mode)
 // ==============================================
-app.listen(PORT, () => {
-  console.log(`📡 Port: ${PORT}`);
-  console.log(`🌐 URL: http://localhost:${PORT}`);
-  console.log(`🗄️  Database: PostgreSQL`);
-  console.log("");
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`📡 Port: ${PORT}`);
+    console.log(`🌐 URL: http://localhost:${PORT}`);
+    console.log(`🗄️  Database: PostgreSQL`);
+    console.log("");
+  });
+}
 
-  console.log("📋 SETUP:");
-  console.log("   1. Create database: createdb pfe_import_export");
-  console.log("   2. Initialize: npm run db:init");
-  console.log("");
-  console.log("🔑 TEST ACCOUNTS (after db:init):");
-  console.log("   🔴 Admin:        admin@test.com / admin123");
-  console.log("   🟢 Agent Export: export@test.com / export123");
-  console.log("   🔵 Agent Import: import@test.com / import123");
-  console.log("   🟠 Partenaire DHL:        partenaire@test.com / partenaire123");
-  console.log("   🟠 Partenaire AST:        ast@test.com / partenaire123");
-  console.log("   🟠 Partenaire TRANSUNIVERS: transunivers@test.com / partenaire123");
-  console.log("=".repeat(60));
-});
+module.exports = { app };

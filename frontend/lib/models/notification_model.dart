@@ -134,6 +134,7 @@ class NotificationModel {
 class PendingRequest {
   final int id;
   final String type; // 'export' or 'import'
+  final String sourceTable; // exports, imports, partenaire_export_data
   final String trailerNumber;
   final DateTime date;
   final String entityName; // client_name for export, supplier_name for import
@@ -150,6 +151,7 @@ class PendingRequest {
   PendingRequest({
     required this.id,
     required this.type,
+    required this.sourceTable,
     required this.trailerNumber,
     required this.date,
     required this.entityName,
@@ -168,14 +170,18 @@ class PendingRequest {
     return PendingRequest(
       id: json['id'] ?? 0,
       type: type,
+      sourceTable:
+          json['source_table'] ?? (type == 'import' ? 'imports' : 'exports'),
       trailerNumber: json['trailer_number'] ?? '',
       date: json['export_date'] != null
           ? DateTime.parse(json['export_date'])
           : (json['import_date'] != null
               ? DateTime.parse(json['import_date'])
-              : DateTime.now()),
+              : (json['embarkation_date'] != null
+                  ? DateTime.parse(json['embarkation_date'])
+                  : DateTime.now())),
       entityName: json['client_name'] ?? json['supplier_name'] ?? '',
-      country: json['country'] ?? '',
+      country: json['country'] ?? '-',
       transporter: json['transporter'],
       status: json['status'] ?? 'pending',
       approvalStatus: json['approval_status'] ?? 'pending',
@@ -184,8 +190,8 @@ class PendingRequest {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
-      barsCount: json['bars_count'],
-      singlesCount: json['singles_count'],
+      barsCount: json['bars_count'] ?? json['number_of_bars'],
+      singlesCount: json['singles_count'] ?? json['number_of_straps'],
     );
   }
 

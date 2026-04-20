@@ -91,6 +91,7 @@ class _AgentImportVerificationRequestCardState
         extraData: {
           'barsCount': _barsCount,
           'singlesCount': _strapsCount,
+          'sourceTable': widget.request.sourceTable,
         },
       );
 

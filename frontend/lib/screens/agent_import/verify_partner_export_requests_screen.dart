@@ -57,7 +57,6 @@ class _VerifyPartnerExportRequestsScreenState
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF0C44A6),
         elevation: 0,
         leading: IconButton(

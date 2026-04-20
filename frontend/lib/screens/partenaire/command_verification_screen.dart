@@ -244,7 +244,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                             size: 22,
                           ),
                         ),
-                        Expanded(
+                        const Expanded(
                           child: Center(
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -254,16 +254,16 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 22,
-                                    color: const Color(0xFF0C44A6),
+                                    color: Color(0xFF0C44A6),
                                   ),
                                 ),
-                                const SizedBox(width: 2),
+                                SizedBox(width: 2),
                                 Text(
                                   'Logitrack',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 18,
-                                    color: const Color(0xFF0C44A6),
+                                    color: Color(0xFF0C44A6),
                                     fontStyle: FontStyle.italic,
                                   ),
                                 ),
@@ -323,8 +323,8 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       decoration: BoxDecoration(
                         color: Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
-                        border:
-                            Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                        border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

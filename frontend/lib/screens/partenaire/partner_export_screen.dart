@@ -161,7 +161,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color:  Color(0xFF0C44A6),
+                      color: Color(0xFF0C44A6),
                     ),
                   ),
                 ),
@@ -175,7 +175,8 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                       color: const Color(0xFF0C44A6),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.add, color: Color(0xFF0C44A6), size: 20),
+                    child: const Icon(Icons.add,
+                        color: Color(0xFF0C44A6), size: 20),
                   ),
                 ),
               ],
@@ -250,9 +251,9 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                       // Header
                       Container(
                         padding: const EdgeInsets.all(20),
-                        decoration:  BoxDecoration(
-                          color:  Color(0xFF0C44A6),
-                          borderRadius: const BorderRadius.only(
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF0C44A6),
+                          borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20),
                             topRight: Radius.circular(20),
                           ),
@@ -277,7 +278,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color:  Color(0xFF0C44A6),
+                                color: Color(0xFF0C44A6),
                               ),
                             ),
                           ],

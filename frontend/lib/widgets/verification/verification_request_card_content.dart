@@ -97,53 +97,81 @@ class VerificationRequestCardContent extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
-          Row(
-            children: [
-              if (!showRejectComment)
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: isLoading ? null : onApprove,
-                    icon: const Icon(Icons.check, size: 20),
-                    label: const Text('Approuver'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final bool compact = constraints.maxWidth < 560;
+
+              final approveButton = ElevatedButton.icon(
+                onPressed: isLoading ? null : onApprove,
+                icon: const Icon(Icons.check, size: 20),
+                label: const Text('Approuver'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              );
+
+              final rejectButton = ElevatedButton.icon(
+                onPressed: isLoading ? null : onReject,
+                icon: const Icon(Icons.close, size: 20),
+                label: Text(
+                  showRejectComment
+                      ? (compact ? 'Confirmer' : 'Confirmer le refus')
+                      : 'Refuser',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (!showRejectComment) approveButton,
+                    if (!showRejectComment) const SizedBox(height: 10),
+                    if (showRejectComment)
+                      TextButton(
+                        onPressed: onCancelReject,
+                        child: const Text(
+                          'Annuler',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    if (showRejectComment) const SizedBox(height: 10),
+                    rejectButton,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  if (!showRejectComment) Expanded(child: approveButton),
+                  if (!showRejectComment) const SizedBox(width: 12),
+                  if (showRejectComment)
+                    Expanded(
+                      child: TextButton(
+                        onPressed: onCancelReject,
+                        child: const Text(
+                          'Annuler',
+                          style: TextStyle(color: Colors.grey),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              if (!showRejectComment) const SizedBox(width: 12),
-              if (showRejectComment)
-                Expanded(
-                  child: TextButton(
-                    onPressed: onCancelReject,
-                    child: const Text(
-                      'Annuler',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                ),
-              if (showRejectComment) const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: isLoading ? null : onReject,
-                  icon: const Icon(Icons.close, size: 20),
-                  label: Text(
-                      showRejectComment ? 'Confirmer le refus' : 'Refuser'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+                  if (showRejectComment) const SizedBox(width: 12),
+                  Expanded(child: rejectButton),
+                ],
+              );
+            },
           ),
         ],
       ),
