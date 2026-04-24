@@ -24,6 +24,13 @@ router.get(
   notificationController.getPendingRequests,
 );
 
+// GET /api/notifications/history-requests - Get history requests
+router.get(
+  "/history-requests",
+  checkRole(ROLES.PARTENAIRE, ROLES.ADMIN, ROLES.AGENT_IMPORT),
+  notificationController.getHistoryRequests,
+);
+
 // POST /api/notifications/decision - Approve or reject request
 router.post(
   "/decision",

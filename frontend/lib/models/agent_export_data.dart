@@ -7,7 +7,9 @@ class AgentExportData {
   final String? transporter;
   final int barsCount;
   final int singlesCount;
+  final int suctionCupsCount;
   final String? notes;
+  final String approvalStatus;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -20,7 +22,9 @@ class AgentExportData {
     this.transporter,
     this.barsCount = 0,
     this.singlesCount = 0,
+    this.suctionCupsCount = 0,
     this.notes,
+    this.approvalStatus = 'pending',
     this.createdAt,
     this.updatedAt,
   });
@@ -35,7 +39,9 @@ class AgentExportData {
       'transporter': transporter,
       'barsCount': barsCount,
       'singlesCount': singlesCount,
+      'suctionCupsCount': suctionCupsCount,
       'notes': notes,
+      'approvalStatus': approvalStatus,
     };
   }
 
@@ -51,7 +57,9 @@ class AgentExportData {
       transporter: json['transporter'],
       barsCount: json['barsCount'] ?? json['bars_count'] ?? 0,
       singlesCount: json['singlesCount'] ?? json['singles_count'] ?? 0,
+      suctionCupsCount: json['suctionCupsCount'] ?? json['suction_cups_count'] ?? 0,
       notes: json['notes'],
+      approvalStatus: json['approvalStatus'] ?? json['approval_status'] ?? 'pending',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : (json['created_at'] != null

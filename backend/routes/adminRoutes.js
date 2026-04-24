@@ -23,6 +23,9 @@ router.post("/users", adminOnly, adminController.createUser);
 // PATCH /api/admin/users/:id/status - Update user status
 router.patch("/users/:id/status", adminOnly, adminController.updateUserStatus);
 
+// PATCH /api/admin/users/:id/role - Update user role
+router.patch("/users/:id/role", adminOnly, adminController.updateUserRole);
+
 // DELETE /api/admin/users/:id - Delete user
 router.delete("/users/:id", adminOnly, adminController.deleteUser);
 

@@ -116,6 +116,8 @@ class DashboardHeader extends StatelessWidget {
         return Icons.download;
       case UserRole.partenaire:
         return Icons.handshake;
+      case UserRole.agentStock:
+        return Icons.inventory;
     }
   }
 
@@ -129,6 +131,8 @@ class DashboardHeader extends StatelessWidget {
         return const Color(0xFF0C44A6);
       case UserRole.partenaire:
         return Colors.orange;
+      case UserRole.agentStock:
+        return const Color(0xFF0C44A6);
     }
   }
 

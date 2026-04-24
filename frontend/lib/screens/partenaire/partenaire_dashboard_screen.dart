@@ -10,6 +10,7 @@ import 'package:import_export_app/services/api_service.dart';
 
 import 'partner_export_screen.dart';
 import 'partner_suivi_tabs_screen.dart';
+import 'partner_history_screen.dart';
 
 class PartenaireDashboardScreen extends StatefulWidget {
   final User user;
@@ -307,8 +308,8 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
         // Create Export Button
         _buildActionCard(
           icon: Icons.add_circle_outline,
-          title: 'Créer un Export',
-          description: 'Créer un nouveau document d\'export partenaire',
+          title: 'Enregistrer un Retour / Export',
+          description: 'Créer un document pour les barres ramenées au retour',
           iconColor: const Color(0xFF0C44A6),
           gradientColors: const [Color(0xFF0C44A6), Color(0xFF0C44A6)],
           onTap: () {
@@ -316,6 +317,23 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => const PartnerExportScreen(),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        // History Button
+        _buildActionCard(
+          icon: Icons.history,
+          title: 'Historique des vérifications',
+          description: 'Consulter l\'historique des demandes que vous avez traitées',
+          iconColor: Colors.blueGrey,
+          gradientColors: const [Color(0xFFECEFF1), Color(0xFFCFD8DC)],
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PartnerHistoryScreen(),
               ),
             );
           },
@@ -374,7 +392,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Color.fromARGB(221, 17, 0, 0),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -382,7 +400,7 @@ class _PartenaireDashboardScreenState extends State<PartenaireDashboardScreen> {
                       description,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: Colors.white.withValues(alpha: 0.8),
                         height: 1.3,
                       ),
                     ),

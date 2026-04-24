@@ -159,7 +159,7 @@ class AppTheme {
       // Bottom Navigation Bar
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primaryBlue,
+        selectedItemColor: Color.fromARGB(255, 236, 238, 240),
         unselectedItemColor: AppColors.textHint,
         type: BottomNavigationBarType.fixed,
         elevation: 8,

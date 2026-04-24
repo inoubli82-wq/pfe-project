@@ -203,6 +203,20 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getHistoryRequests() async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/notifications/history-requests'),
+        headers: headers,
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur récupération historique: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
   static Future<Map<String, dynamic>> handleDecision({
     required String requestType,
     required int requestId,
@@ -277,6 +291,100 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> updateExport(
+      int id, AgentExportData exportData) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.put(
+        Uri.parse('$baseUrl/exports/$id'),
+        headers: headers,
+        body: jsonEncode(exportData.toJson()),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur mise à jour export: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> deleteExport(int id) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/exports/$id'),
+        headers: headers,
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur suppression export: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateExportStatus(
+      int id, String status) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.patch(
+        Uri.parse('$baseUrl/exports/$id/status'),
+        headers: headers,
+        body: jsonEncode({'status': status}),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur mise à jour statut export: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateArrivalInfo({
+    required int id,
+    required String containerNumber,
+    required String expectedArrivalDate,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.patch(
+        Uri.parse('$baseUrl/exports/$id/arrival'),
+        headers: headers,
+        body: jsonEncode({
+          'containerNumber': containerNumber,
+          'expectedArrivalDate': expectedArrivalDate,
+        }),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur mise à jour info arrivée: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> receiveExport({
+    required int id,
+    required int receivedBars,
+    required int receivedSingles,
+    required int receivedSuctionCups,
+    String? notes,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.patch(
+        Uri.parse('$baseUrl/exports/$id/receive'),
+        headers: headers,
+        body: jsonEncode({
+          'receivedBars': receivedBars,
+          'receivedSingles': receivedSingles,
+          'receivedSuctionCups': receivedSuctionCups,
+          'notes': notes,
+        }),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur réception export: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
   // ========== IMPORTS ==========
 
   static Future<Map<String, dynamic>> createImport({
@@ -326,11 +434,17 @@ class ApiService {
 
   // ========== ADMIN ==========
 
-  static Future<Map<String, dynamic>> getDashboardStats() async {
+  static Future<Map<String, dynamic>> getDashboardStats({String? startDate, String? endDate}) async {
     try {
       final headers = await _getHeaders();
+      
+      String url = '$baseUrl/admin/dashboard';
+      if (startDate != null && endDate != null) {
+        url += '?startDate=$startDate&endDate=$endDate';
+      }
+
       final response = await http.get(
-        Uri.parse('$baseUrl/admin/dashboard'),
+        Uri.parse(url),
         headers: headers,
       );
       return json.decode(response.body);
@@ -445,6 +559,95 @@ class ApiService {
       return jsonDecode(response.body);
     } catch (e) {
       debugPrint('❌ Erreur suppression export data: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  // ===========================================
+  // ADMIN API
+  // ===========================================
+  
+
+  static Future<Map<String, dynamic>> createUser(Map<String, dynamic> data) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$baseUrl/admin/users'),
+        headers: headers,
+        body: json.encode(data),
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur createUser: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateUserRole(int userId, String newRole) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.patch(
+        Uri.parse('$baseUrl/admin/users/$userId/role'),
+        headers: headers,
+        body: json.encode({'userType': newRole}),
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur updateUserRole: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> deleteUser(int userId) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/admin/users/$userId'),
+        headers: headers,
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur deleteUser: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  // ========== STOCKS ==========
+
+  static Future<Map<String, dynamic>> getStocks() async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/stocks'),
+        headers: headers,
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur récupération stocks: $e');
+      return {'success': false, 'message': 'Erreur serveur'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateStock({
+    required String transporter,
+    required int barsCount,
+    required int singlesCount,
+    required int suctionCupsCount,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.put(
+        Uri.parse('$baseUrl/stocks/$transporter'),
+        headers: headers,
+        body: json.encode({
+          'bars_count': barsCount,
+          'singles_count': singlesCount,
+          'suction_cups_count': suctionCupsCount,
+        }),
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      debugPrint('❌ Erreur mise à jour stock: $e');
       return {'success': false, 'message': 'Erreur serveur'};
     }
   }

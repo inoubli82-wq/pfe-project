@@ -147,6 +147,8 @@ class PendingRequest {
   final DateTime createdAt;
   final int? barsCount;
   final int? singlesCount;
+  final int? suctionCupsCount;
+  final String? rejectionReason;
 
   PendingRequest({
     required this.id,
@@ -164,6 +166,8 @@ class PendingRequest {
     required this.createdAt,
     this.barsCount,
     this.singlesCount,
+    this.suctionCupsCount,
+    this.rejectionReason,
   });
 
   factory PendingRequest.fromJson(Map<String, dynamic> json, String type) {
@@ -192,6 +196,9 @@ class PendingRequest {
           : DateTime.now(),
       barsCount: json['bars_count'] ?? json['number_of_bars'],
       singlesCount: json['singles_count'] ?? json['number_of_straps'],
+      suctionCupsCount:
+          json['suction_cups_count'] ?? json['number_of_suction_cups'],
+      rejectionReason: json['rejection_reason'],
     );
   }
 

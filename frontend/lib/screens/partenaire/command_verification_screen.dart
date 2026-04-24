@@ -1,8 +1,3 @@
-// ===========================================
-// COMMAND VERIFICATION SCREEN
-// ===========================================
-// This screen allows partners to verify and validate import/export commands
-// It displays command details and lets users confirm or reject orders
 
 // Import Flutter's Material Design widgets library
 import 'package:flutter/material.dart';
@@ -42,6 +37,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
   int _nombreBarres = 0;
   // Counter for number of straps (equipment tracking)
   int _nombreSangles = 0;
+  int _nombreSuctionCups = 0;
   // TextEditingController: Manages text input field state
   // 'final' because the controller reference doesn't change, only its content
   final TextEditingController _commentaireController = TextEditingController();
@@ -58,6 +54,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
     // Initialize counters with data from request if available
     _nombreBarres = widget.request.barsCount ?? 0;
     _nombreSangles = widget.request.singlesCount ?? 0;
+    _nombreSuctionCups= widget.request.suctionCupsCount ?? 0;
   }
 
   // dispose(): Called when this State object is removed permanently
@@ -100,6 +97,20 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
     if (_nombreSangles > 0) {
       setState(() {
         _nombreSangles--;
+      });
+    }
+  }
+  void _incrementerSuctionCups() {
+    setState(() {
+      _nombreSuctionCups++;
+    });
+  }
+
+  // Decrement the suction cups counter, but only if > 0
+  void _decrementerSuctionCups() {
+    if (_nombreSuctionCups > 0) {
+      setState(() {
+        _nombreSuctionCups--;
       });
     }
   }
@@ -148,6 +159,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
         extraData: {
           'barsCount': _nombreBarres,
           'singlesCount': _nombreSangles,
+          'suctionCupsCount': _nombreSuctionCups,
         },
       );
 
@@ -306,7 +318,7 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: Color.fromARGB(255, 233, 244, 255),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
@@ -528,6 +540,14 @@ class _CommandVerificationScreenState extends State<CommandVerificationScreen> {
                       value: _nombreSangles,
                       onIncrement: _incrementerSangles,
                       onDecrement: _decrementerSangles,
+                    ),
+                    const SizedBox(height: 16),
+                    CounterRow(
+                      title: 'Nombre de',
+                      boldTitle: 'Ventouses',
+                      value: _nombreSuctionCups,
+                      onIncrement: _incrementerSuctionCups,
+                      onDecrement: _decrementerSuctionCups,
                     ),
                     const SizedBox(height: 24),
                     RichText(

@@ -80,6 +80,7 @@ const register = async (req, res) => {
     const validUserTypes = [
       ROLES.AGENT_EXPORT,
       ROLES.AGENT_IMPORT,
+      ROLES.AGENT_STOCK,
       ROLES.PARTENAIRE,
     ];
     if (!validUserTypes.includes(userType)) {

@@ -53,22 +53,7 @@ class _PartnerImportSuiviScreenState extends State<PartnerImportSuiviScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Vérification des Demandes',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0C44A6),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

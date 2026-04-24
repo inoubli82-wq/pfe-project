@@ -93,6 +93,7 @@ class RequestCard extends StatelessWidget {
   final String status;
   final String approvalStatus;
   final String? createdByName;
+  final String? rejectionReason;
   final VoidCallback? onTap;
   final Widget? trailing;
 
@@ -106,6 +107,7 @@ class RequestCard extends StatelessWidget {
     required this.status,
     required this.approvalStatus,
     this.createdByName,
+    this.rejectionReason,
     this.onTap,
     this.trailing,
   });
@@ -238,6 +240,29 @@ class RequestCard extends StatelessWidget {
               if (createdByName != null) ...[
                 const SizedBox(height: 8),
                 _buildDetailRow(Icons.person, 'Créé par', createdByName!),
+              ],
+              if (approvalStatus == 'rejected' && rejectionReason != null && rejectionReason!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red[100]!),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.red, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Motif du refus: $rejectionReason',
+                          style: TextStyle(color: Colors.red[900], fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
               // Trailing widget (e.g., approval buttons)
               if (trailing != null) ...[

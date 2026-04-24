@@ -149,6 +149,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'color': Colors.orange,
       'description': 'Client partenaire ',
     },
+    {
+      'label': 'Agent de Stock',
+      'icon': Icons.inventory,
+      'color': Colors.purple,
+      'description': 'Gestion des stocks de barres et vantouses',
+    },
   ];
 
   String? _validateEmail(String? value) {

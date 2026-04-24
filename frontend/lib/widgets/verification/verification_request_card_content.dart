@@ -7,6 +7,7 @@ class VerificationRequestCardContent extends StatelessWidget {
   final PendingRequest request;
   final int barsCount;
   final int strapsCount;
+  final int suctionCupsCount;
   final bool isLoading;
   final bool showRejectComment;
   final TextEditingController commentController;
@@ -15,15 +16,21 @@ class VerificationRequestCardContent extends StatelessWidget {
   final VoidCallback onDecrementBars;
   final VoidCallback onIncrementStraps;
   final VoidCallback onDecrementStraps;
+  final VoidCallback onIncrementSuctionCups;
+  final VoidCallback onDecrementSuctionCups;
   final VoidCallback onApprove;
   final VoidCallback onReject;
   final VoidCallback onCancelReject;
+  final ValueChanged<int>? onBarsChanged;
+  final ValueChanged<int>? onStrapsChanged;
+  final ValueChanged<int>? onSuctionCupsChanged;
 
   const VerificationRequestCardContent({
     super.key,
     required this.request,
     required this.barsCount,
     required this.strapsCount,
+    required this.suctionCupsCount,
     required this.isLoading,
     required this.showRejectComment,
     required this.commentController,
@@ -32,9 +39,14 @@ class VerificationRequestCardContent extends StatelessWidget {
     required this.onDecrementBars,
     required this.onIncrementStraps,
     required this.onDecrementStraps,
+    required this.onIncrementSuctionCups,
+    required this.onDecrementSuctionCups,
     required this.onApprove,
     required this.onReject,
     required this.onCancelReject,
+    this.onBarsChanged,
+    this.onStrapsChanged,
+    this.onSuctionCupsChanged,
   });
 
   @override
@@ -68,6 +80,7 @@ class VerificationRequestCardContent extends StatelessWidget {
                   value: barsCount,
                   onIncrement: onIncrementBars,
                   onDecrement: onDecrementBars,
+                  onChanged: onBarsChanged,
                 ),
                 const SizedBox(height: 12),
                 CounterRow(
@@ -76,6 +89,16 @@ class VerificationRequestCardContent extends StatelessWidget {
                   value: strapsCount,
                   onIncrement: onIncrementStraps,
                   onDecrement: onDecrementStraps,
+                  onChanged: onStrapsChanged,
+                ),
+                const SizedBox(height: 12),
+                CounterRow(
+                  title: 'Nombre de',
+                  boldTitle: 'Ventouses',
+                  value: suctionCupsCount,
+                  onIncrement: onIncrementSuctionCups,
+                  onDecrement: onDecrementSuctionCups,
+                  onChanged: onSuctionCupsChanged,
                 ),
               ],
             ),
@@ -85,7 +108,7 @@ class VerificationRequestCardContent extends StatelessWidget {
             TextField(
               controller: commentController,
               decoration: InputDecoration(
-                labelText: 'Motif du refus',
+                labelText: 'Motif de non-conformité',
                 hintText: 'Saisissez la raison...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -104,7 +127,7 @@ class VerificationRequestCardContent extends StatelessWidget {
               final approveButton = ElevatedButton.icon(
                 onPressed: isLoading ? null : onApprove,
                 icon: const Icon(Icons.check, size: 20),
-                label: const Text('Approuver'),
+                label: const Text('Confirmer'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -120,8 +143,8 @@ class VerificationRequestCardContent extends StatelessWidget {
                 icon: const Icon(Icons.close, size: 20),
                 label: Text(
                   showRejectComment
-                      ? (compact ? 'Confirmer' : 'Confirmer le refus')
-                      : 'Refuser',
+                      ? (compact ? 'Valider' : 'Confirmer non-conformité')
+                      : 'Non confirmer',
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,

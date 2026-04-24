@@ -11,65 +11,65 @@ const path = require("path");
 const SALT_ROUNDS = 10;
 
 // Test users with plain passwords
-// const testUsers = [
-//   {
-//     full_name: "Admin Principal",
-//     email: "admin@test.com",
-//     phone: "12345678",
-//     country_code: "+216",
-//     user_type: "admin",
-//     password: "admin123",
-//     status: "active",
-//   },
-//   {
-//     full_name: "Agent Export Test",
-//     email: "export@test.com",
-//     phone: "98765432",
-//     country_code: "+216",
-//     user_type: "Agent Export",
-//     password: "export123",
-//     status: "active",
-//   },
-//   {
-//     full_name: "Agent Import Test",
-//     email: "import@test.com",
-//     phone: "55555555",
-//     country_code: "+216",
-//     user_type: "Agent Import",
-//     password: "import123",
-//     status: "active",
-//   },
-//   {
-//     full_name: "partenaire Principal",
-//     email: "partenaire@test.com",
-//     phone: "71001110",
-//     country_code: "+216",
-//     user_type: "Partenaire",
-//     transporter: "DHL",
-//     password: "partenaire123",
-//     status: "active",
-//   },
-//   {
-//     full_name: "partenaire AST",
-//     email: "ast@test.com",
-//     phone: "71001111",
-//     country_code: "+216",
-//     user_type: "Partenaire",
-//     transporter: "AST",
-//     password: "partenaire123",
-//     status: "active",
-//   },
-//   {
-//     full_name: "partenaire TRANSUNIVERS",
-//     email: "transunivers@test.com",
-//     phone: "71001112",
-//     country_code: "+216",
-//     user_type: "Partenaire",
-//     transporter: "TRANSUNIVERS",
-//     password: "partenaire123",
-//     status: "active",
-//   },
-// ];
+const testUsers = [
+  {
+    full_name: "Admin Principal",
+    email: "admin@test.com",
+    phone: "12345678",
+    country_code: "+216",
+    user_type: "admin",
+    password: "admin123",
+    status: "active",
+  },
+  {
+    full_name: "Agent Export Test",
+    email: "export@test.com",
+    phone: "98765432",
+    country_code: "+216",
+    user_type: "Agent Export",
+    password: "export123",
+    status: "active",
+  },
+  {
+    full_name: "Agent Import Test",
+    email: "import@test.com",
+    phone: "55555555",
+    country_code: "+216",
+    user_type: "Agent Import",
+    password: "import123",
+    status: "active",
+  },
+  {
+    full_name: "partenaire Principal",
+    email: "partenaire@test.com",
+    phone: "71001110",
+    country_code: "+216",
+    user_type: "Partenaire",
+    transporter: "DHL",
+    password: "partenaire123",
+    status: "active",
+  },
+  {
+    full_name: "partenaire AST",
+    email: "ast@test.com",
+    phone: "71001111",
+    country_code: "+216",
+    user_type: "Partenaire",
+    transporter: "AST",
+    password: "partenaire123",
+    status: "active",
+  },
+  {
+    full_name: "partenaire TRANSUNIVERS",
+    email: "transunivers@test.com",
+    phone: "71001112",
+    country_code: "+216",
+    user_type: "Partenaire",
+    transporter: "TRANSUNIVERS",
+    password: "partenaire123",
+    status: "active",
+  },
+];
 
 async function initDatabase() {
   console.log("=".repeat(60));
@@ -134,7 +134,7 @@ async function createTables() {
       `ALTER TABLE users DROP CONSTRAINT IF EXISTS users_user_type_check`,
     );
     await query(
-      `ALTER TABLE users ADD CONSTRAINT users_user_type_check CHECK (user_type IN ('admin', 'Agent Export', 'Agent Import', 'Partenaire'))`,
+      `ALTER TABLE users ADD CONSTRAINT users_user_type_check CHECK (user_type IN ('admin', 'Agent Export', 'Agent Import', 'Agent de Stock', 'Partenaire'))`,
     );
     console.log("   ✅ Updated user_type constraint to include Partenaire");
   } catch (e) {
@@ -162,7 +162,15 @@ async function createTables() {
       transporter VARCHAR(255),
       bars_count INTEGER DEFAULT 0,
       singles_count INTEGER DEFAULT 0,
+      suction_cups_count INTEGER DEFAULT 0,
       status VARCHAR(50) DEFAULT 'pending',
+      approval_status VARCHAR(50) DEFAULT 'pending', -- Link with partenaire approval
+      container_number VARCHAR(100),
+      expected_arrival_date DATE,
+      actual_arrival_date DATE,
+      received_bars INTEGER DEFAULT 0,
+      received_singles INTEGER DEFAULT 0,
+      received_suction_cups INTEGER DEFAULT 0,
       notes TEXT,
       created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -228,6 +236,20 @@ async function createTables() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  console.log("   ✅ Created partenaire_export_data table");
+
+  // Stocks table
+  await query(`
+    CREATE TABLE IF NOT EXISTS stocks (
+      id SERIAL PRIMARY KEY,
+      transporter VARCHAR(100) UNIQUE NOT NULL,
+      bars_count INTEGER DEFAULT 0,
+      singles_count INTEGER DEFAULT 0,
+      suction_cups_count INTEGER DEFAULT 0,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  console.log("   ✅ Created stocks table");
 
   // Add missing columns to existing tables (migrations)
   console.log("   🔄 Running migrations for approval workflow...");
@@ -272,7 +294,15 @@ async function createTables() {
     "INTEGER REFERENCES users(id) ON DELETE SET NULL",
   );
   await safeAddColumn("partenaire_export_data", "approved_at", "TIMESTAMP");
-  await safeAddColumn("partenaire_export_data", "rejection_reason", "TEXT");
+  // Add received counts to exports
+  await safeAddColumn("exports", "received_bars", "INTEGER");
+  await safeAddColumn("exports", "received_singles", "INTEGER");
+  await safeAddColumn("exports", "received_suction_cups", "INTEGER");
+
+  // Add received counts to partenaire_export_data
+  await safeAddColumn("partenaire_export_data", "received_bars", "INTEGER");
+  await safeAddColumn("partenaire_export_data", "received_singles", "INTEGER");
+  await safeAddColumn("partenaire_export_data", "received_suction_cups", "INTEGER");
 
   // Create indexes
   await query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
@@ -399,17 +429,18 @@ async function seedSampleData() {
   const exportId = exportUser.rows[0]?.id || 2;
   const importId = importUser.rows[0]?.id || 3;
   const partenaireId = partenaireUser.rows[0]?.id || 4;
+  const stockid = stockUser.rows[0]?.id || 5;
 
   // Check if sample data exists
   const existingExports = await query("SELECT COUNT(*) FROM exports");
   if (parseInt(existingExports.rows[0].count) === 0) {
     // Insert sample exports
     await query(
-      `INSERT INTO exports (trailer_number, export_date, client_name, country, transporter, bars_count, singles_count, status, created_by)
+      `INSERT INTO exports (trailer_number, export_date, client_name, country, transporter, bars_count, singles_count, suction_cups_count, status, created_by)
        VALUES 
-         ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'TRANSUNIVERS', 50, 100, 'completed', $1),
-         ('TR-2024-002', '2024-02-05', 'Spain Import Co', '🇪🇸 Espagne', 'DHL', 30, 75, 'in_progress', $2),
-         ('TR-2024-003', '2024-02-10', 'German Logistics', '🇩🇪 Allemagne', 'AST', 45, 120, 'pending', $3)`,
+         ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'TRANSUNIVERS', 50, 100, 50, 'completed', $1),
+         ('TR-2024-002', '2024-02-05', 'Spain Import Co', '🇪🇸 Espagne', 'DHL', 30, 75, 20, 'in_progress', $2),
+         ('TR-2024-003', '2024-02-10', 'German Logistics', '🇩🇪 Allemagne', 'AST', 45, 120, 30, 'pending', $3)`,
       [exportId, exportId, adminId],
     );
     console.log("   ✅ Sample exports created");
@@ -427,6 +458,19 @@ async function seedSampleData() {
       [importId, importId, adminId],
     );
     console.log("   ✅ Sample imports created");
+  }
+
+  // Seed initial stocks if empty
+  const existingStocks = await query("SELECT COUNT(*) FROM stocks");
+  if (parseInt(existingStocks.rows[0].count) === 0) {
+    await query(
+      `INSERT INTO stocks (transporter, bars_count, singles_count, suction_cups_count)
+       VALUES 
+         ('DHL', 100, 200, 150),
+         ('AST', 150, 300, 250),
+         ('TRANSUNIVERS', 200, 400, 350)`
+    );
+    console.log("   ✅ Initial stocks seeded");
   }
 }
 

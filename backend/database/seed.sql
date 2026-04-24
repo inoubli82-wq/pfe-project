@@ -36,11 +36,11 @@ VALUES
 -- ===========================================
 -- INSERT SAMPLE EXPORTS
 -- ===========================================
-INSERT INTO exports (trailer_number, export_date, client_name, country, transporter, bars_count, singles_count, status, created_by)
+INSERT INTO exports (trailer_number, export_date, client_name, country, transporter, bars_count, singles_count, suction_cups_count, status, created_by)
 VALUES 
-    ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'TRANSUNIVERS', 50, 100, 'completed', 2),
-    ('TR-2024-002', '2024-02-05', 'Spain Import Co', '🇪🇸 Espagne', 'DHL', 30, 75, 'in_progress', 2),
-    ('TR-2024-003', '2024-02-10', 'German Logistics', '🇩🇪 Allemagne', 'AST', 45, 120, 'pending', 1);
+    ('TR-2024-001', '2024-02-01', 'Client France SA', '🇫🇷 France', 'TRANSUNIVERS', 50, 100, 10, 'completed', 2),
+    ('TR-2024-002', '2024-02-05', 'Spain Import Co', '🇪🇸 Espagne', 'DHL', 30, 75, 15, 'in_progress', 2),
+    ('TR-2024-003', '2024-02-10', 'German Logistics', '🇩🇪 Allemagne', 'AST', 45, 120, 20, 'pending', 1);
 
 -- ===========================================
 -- INSERT SAMPLE IMPORTS

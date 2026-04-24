@@ -51,7 +51,7 @@ class _VerifyPartnerExportRequestsScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Vérification Export Partenaire',
+          'Vérification des Retours',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -80,7 +80,7 @@ class _VerifyPartnerExportRequestsScreenState
                           ),
                           const SizedBox(height: 16),
                           const Text(
-                            'Aucune demande export partenaire en attente',
+                            'Aucun retour ou arrivée en attente',
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.grey,

@@ -9,7 +9,7 @@ class DashboardScreen extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/dashboard/export_background.jpg'),
+          image: AssetImage('assets/images/backgrounds/login_background.jpg'),
           fit: BoxFit.cover,
         ),
       ),

@@ -28,10 +28,10 @@ class PartnerSuiviTabsScreen extends StatelessWidget {
               ),
               Tab(
                 icon: Icon(Icons.upload),
-                text: 'Suivi Mes Exports',
+                text: 'Suivi Mes Retours',
               ),
             ],
-            indicatorColor: Colors.white,
+            
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
           ),
           elevation: 0,

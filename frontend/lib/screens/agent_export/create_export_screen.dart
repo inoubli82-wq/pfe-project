@@ -20,6 +20,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
   String? _selectedTransporter;
   int _barsCount = 0;
   int _singlesCount = 0;
+  int _suctionCupsCount = 0;
   bool _isLoading = false;
 
   final List<String> _countries = [
@@ -283,6 +284,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
         debugPrint('Transporteur: $_selectedTransporter');
         debugPrint('Nombre de barres: $_barsCount');
         debugPrint('Nombre de singles: $_singlesCount');
+        debugPrint('Nombre de vantouses: $_suctionCupsCount');
 
         // Créer un objet AgentExportData
         final exportData = AgentExportData(
@@ -293,6 +295,7 @@ class _CreateExportPageState extends State<CreateExportPage> {
           transporter: _selectedTransporter,
           barsCount: _barsCount,
           singlesCount: _singlesCount,
+          suctionCupsCount: _suctionCupsCount,
         );
 
         // Appeler l'API
@@ -340,10 +343,37 @@ class _CreateExportPageState extends State<CreateExportPage> {
     }
   }
 
+  final _barsController = TextEditingController(text: '0');
+  final _singlesController = TextEditingController(text: '0');
+  final _suctionCupsController = TextEditingController(text: '0');
+
+  @override
+  void initState() {
+    super.initState();
+    _barsController.addListener(() {
+      setState(() {
+        _barsCount = int.tryParse(_barsController.text) ?? 0;
+      });
+    });
+    _singlesController.addListener(() {
+      setState(() {
+        _singlesCount = int.tryParse(_singlesController.text) ?? 0;
+      });
+    });
+    _suctionCupsController.addListener(() {
+      setState(() {
+        _suctionCupsCount = int.tryParse(_suctionCupsController.text) ?? 0;
+      });
+    });
+  }
+
   @override
   void dispose() {
     _trailerNumberController.dispose();
     _clientNameController.dispose();
+    _barsController.dispose();
+    _singlesController.dispose();
+    _suctionCupsController.dispose();
     super.dispose();
   }
 
@@ -662,32 +692,33 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                       size: 20.0,
                                     ),
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (_barsCount > 0) _barsCount--;
-                                    });
-                                  },
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_barsCount > 0) {
+                                          _barsCount--;
+                                          _barsController.text = _barsCount.toString();
+                                        }
+                                      });
+                                    },
                                 ),
-                                Container(
-                                  width: 50.0,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 12.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    border: Border.all(
-                                        color: const Color(0xFF0C44A6)),
-                                  ),
-                                  child: Text(
-                                    '$_barsCount',
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0C44A6),
+                                SizedBox(
+                                    width: 60.0,
+                                    child: TextField(
+                                      controller: _barsController,
+                                      keyboardType: TextInputType.number,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF0C44A6),
+                                      ),
+                                      decoration: const InputDecoration(
+                                        isDense: true,
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
                                     ),
                                   ),
-                                ),
                                 IconButton(
                                   icon: Container(
                                     decoration: BoxDecoration(
@@ -700,11 +731,12 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                       size: 20.0,
                                     ),
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _barsCount++;
-                                    });
-                                  },
+                                    onPressed: () {
+                                      setState(() {
+                                        _barsCount++;
+                                        _barsController.text = _barsCount.toString();
+                                      });
+                                    },
                                 ),
                               ],
                             ),
@@ -750,32 +782,33 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                       size: 20.0,
                                     ),
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (_singlesCount > 0) _singlesCount--;
-                                    });
-                                  },
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_singlesCount > 0) {
+                                          _singlesCount--;
+                                          _singlesController.text = _singlesCount.toString();
+                                        }
+                                      });
+                                    },
                                 ),
-                                Container(
-                                  width: 50.0,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 12.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    border: Border.all(
-                                        color: const Color(0xFF0C44A6)),
-                                  ),
-                                  child: Text(
-                                    '$_singlesCount',
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0C44A6),
+                                  SizedBox(
+                                    width: 60.0,
+                                    child: TextField(
+                                      controller: _singlesController,
+                                      keyboardType: TextInputType.number,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF0C44A6),
+                                      ),
+                                      decoration: const InputDecoration(
+                                        isDense: true,
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
                                     ),
                                   ),
-                                ),
                                 IconButton(
                                   icon: Container(
                                     decoration: BoxDecoration(
@@ -788,11 +821,102 @@ class _CreateExportPageState extends State<CreateExportPage> {
                                       size: 20.0,
                                     ),
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _singlesCount++;
-                                    });
-                                  },
+                                    onPressed: () {
+                                      setState(() {
+                                        _singlesCount++;
+                                        _singlesController.text = _singlesCount.toString();
+                                      });
+                                    },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20.0),
+
+                      // Nombre de vantouses - Label avant le compteur
+                      Container(
+                        padding: const EdgeInsets.all(15.0),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Label
+                            const Text(
+                              'Nombre de vantouses',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF4A5568),
+                              ),
+                            ),
+
+                            // Compteur
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.remove,
+                                      color: Colors.red,
+                                      size: 20.0,
+                                    ),
+                                  ),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_suctionCupsCount > 0) {
+                                          _suctionCupsCount--;
+                                          _suctionCupsController.text = _suctionCupsCount.toString();
+                                        }
+                                      });
+                                    },
+                                ),
+                                  SizedBox(
+                                    width: 60.0,
+                                    child: TextField(
+                                      controller: _suctionCupsController,
+                                      keyboardType: TextInputType.number,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF0C44A6),
+                                      ),
+                                      decoration: const InputDecoration(
+                                        isDense: true,
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                                      ),
+                                    ),
+                                  ),
+                                IconButton(
+                                  icon: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.green,
+                                      size: 20.0,
+                                    ),
+                                  ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _suctionCupsCount++;
+                                        _suctionCupsController.text = _suctionCupsCount.toString();
+                                      });
+                                    },
                                 ),
                               ],
                             ),

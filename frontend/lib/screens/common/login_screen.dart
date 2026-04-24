@@ -6,6 +6,7 @@ import 'package:import_export_app/screens/agent_import/import_dashboard_screen.d
 import 'package:import_export_app/screens/common/forgot_password_screen.dart';
 import 'package:import_export_app/screens/common/register_screen.dart';
 import 'package:import_export_app/screens/partenaire/partenaire_dashboard_screen.dart';
+import 'package:import_export_app/screens/agent_stock/stock_agent_dashboard.dart';
 import 'package:import_export_app/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -100,6 +101,9 @@ class _LoginScreenState extends State<LoginScreen> {
         break;
       case UserRole.partenaire:
         dashboard = PartenaireDashboardScreen(user: user);
+        break;
+      case UserRole.agentStock:
+        dashboard = StockAgentDashboard(user: user);
         break;
     }
 

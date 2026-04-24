@@ -7,6 +7,7 @@ class ExportData {
   final int numberOfStraps;
   final int numberOfSuctionCups;
   final String approvalStatus;
+  final String status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -19,6 +20,7 @@ class ExportData {
     required this.numberOfStraps,
     required this.numberOfSuctionCups,
     this.approvalStatus = 'pending',
+    this.status = 'pending',
     this.createdAt,
     this.updatedAt,
   });
@@ -33,6 +35,7 @@ class ExportData {
       'numberOfStraps': numberOfStraps,
       'numberOfSuctionCups': numberOfSuctionCups,
       'approval_status': approvalStatus,
+      'status': status,
     };
   }
 
@@ -47,6 +50,7 @@ class ExportData {
       numberOfStraps: json['number_of_straps'] ?? 0,
       numberOfSuctionCups: json['number_of_suction_cups'] ?? 0,
       approvalStatus: json['approval_status'] ?? 'pending',
+      status: json['status'] ?? 'pending',
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,

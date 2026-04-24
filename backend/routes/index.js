@@ -8,6 +8,7 @@ const exportRoutes = require("./exportRoutes");
 const partnerExportRoutes = require("./partnerExportRoutes");
 const importRoutes = require("./importRoutes");
 const notificationRoutes = require("./notificationRoutes");
+const stockRoutes = require("./stockRoutes");
 
 /**
  * Register all routes with the Express app
@@ -31,6 +32,9 @@ const registerRoutes = (app) => {
 
   // Notification routes
   app.use("/api/notifications", notificationRoutes);
+
+  // Stock routes
+  app.use("/api/stocks", stockRoutes);
 };
 
 module.exports = { registerRoutes };

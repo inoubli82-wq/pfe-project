@@ -2,7 +2,7 @@
 // NOTIFICATION CONTROLLER
 // ==============================================
 
-const { query, getOne, getMany } = require("../config/database");
+const { pool, query, getOne, getMany } = require("../config/database");
 const { ROLES } = require("../config/roles");
 
 /**
@@ -143,7 +143,7 @@ const notifyForDecision = async (
   requestType,
   requestId,
   decision,
-  partenaireId,
+  decisionMakerId,
   reason = null,
 ) => {
   try {
@@ -163,11 +163,11 @@ const notifyForDecision = async (
 
     if (!request) return;
 
-    const partenaire = await getOne(
-      "SELECT full_name FROM users WHERE id = $1",
-      [partenaireId],
+    const decisionUser = await getOne(
+      "SELECT full_name, user_type FROM users WHERE id = $1",
+      [decisionMakerId],
     );
-    const partenaireName = partenaire?.full_name || "Partenaire";
+    const decisionMakerName = decisionUser?.full_name || "Utilisateur";
 
     // Get all admins for notification
     const admins = await getMany(
@@ -184,8 +184,8 @@ const notifyForDecision = async (
 
     const message =
       decision === "approved"
-        ? `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}) a été approuvée par ${partenaireName}.`
-        : `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}) a été refusée par ${partenaireName}. ${reason ? `Raison: ${reason}` : ""}`;
+        ? `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}) a été approuvée par ${decisionMakerName}.`
+        : `Votre demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}) a été refusée par ${decisionMakerName}. ${reason ? `Raison: ${reason}` : ""}`;
 
     // Notify the creator
     if (request.created_by) {
@@ -195,14 +195,14 @@ const notifyForDecision = async (
         message,
         referenceType: requestType,
         referenceId: requestId,
-        senderId: partenaireId,
+        senderId: decisionMakerId,
         recipientId: request.created_by,
         actionRequired: false,
       });
     }
 
     // Notify admins
-    const adminMessage = `${partenaireName} a ${decision === "approved" ? "approuvé" : "refusé"} la demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}).`;
+    const adminMessage = `${decisionMakerName} a ${decision === "approved" ? "approuvé" : "refusé"} la demande ${requestType === "export" ? "d'export" : "d'import"} (${requestIdentifier}).`;
 
     for (const admin of admins) {
       await createNotification({
@@ -211,7 +211,7 @@ const notifyForDecision = async (
         message: adminMessage,
         referenceType: requestType,
         referenceId: requestId,
-        senderId: partenaireId,
+        senderId: decisionMakerId,
         recipientId: admin.id,
         actionRequired: false,
       });
@@ -346,6 +346,138 @@ const markAllAsRead = async (req, res) => {
  */
 const getPendingRequests = async (req, res) => {
   try {
+    const userRole = (req.user.user_type || "").toUpperCase();
+    const isPartner = userRole === ROLES.PARTENAIRE.toUpperCase();
+    const isAgentImport = userRole === ROLES.AGENT_IMPORT.toUpperCase();
+    const transporter = normalizeTransporter(req.user.transporter);
+
+    console.log(`👤 User: ${req.user.full_name} | Role: ${userRole} | Transporter: ${transporter}`);
+
+    // For AgentImport, get ALL pending verifications:
+    // 1. partner_export_data (pending)
+    // 2. exports (status = 'arrived')
+    if (isAgentImport) {
+      const partnerExports = await getMany(
+        `SELECT p.*, u.full_name as created_by_name, u.transporter, 'export' as type, 'partenaire_export_data' as source_table
+         FROM partenaire_export_data p
+         LEFT JOIN users u ON p.created_by = u.id
+         WHERE p.approval_status = 'pending'
+         ORDER BY p.created_at DESC`
+      );
+
+      const arrivedExports = await getMany(
+        `SELECT e.*, u.full_name as created_by_name, 'export' as type, 'exports' as source_table
+         FROM exports e
+         LEFT JOIN users u ON e.created_by = u.id
+         WHERE e.status = 'arrived'
+         ORDER BY e.updated_at DESC`
+      );
+
+      const combinedPending = [...partnerExports, ...arrivedExports];
+      console.log(`✅ Agent Import results: ${combinedPending.length}`);
+
+      return res.json({
+        success: true,
+        pendingExports: combinedPending,
+        pendingImports: [],
+        totalPending: combinedPending.length,
+      });
+    }
+
+    // For Partners and Admin
+    let pendingExports = [];
+    if (isPartner && transporter) {
+      // Partners only see exports assigned to them
+      pendingExports = await getMany(
+        `SELECT e.*, u.full_name as created_by_name, 'export' as type, 'exports' as source_table
+         FROM exports e
+         LEFT JOIN users u ON e.created_by = u.id
+         WHERE e.approval_status = 'pending'
+         AND UPPER(TRIM(COALESCE(e.transporter, ''))) = $1
+         ORDER BY e.created_at DESC`,
+        [transporter]
+      );
+    } else {
+      // Admins see all pending exports
+      pendingExports = await getMany(
+        `SELECT e.*, u.full_name as created_by_name, 'export' as type, 'exports' as source_table
+         FROM exports e
+         LEFT JOIN users u ON e.created_by = u.id
+         WHERE e.approval_status = 'pending'
+         ORDER BY e.created_at DESC`
+      );
+    }
+
+    // Get pending partner exports (from partenaire_export_data)
+    let partnerExportsList = [];
+    if (isPartner && transporter) {
+       partnerExportsList = await getMany(
+        `SELECT p.*, u.full_name as created_by_name, u.transporter, 'export' as type, 'partenaire_export_data' as source_table
+         FROM partenaire_export_data p
+         LEFT JOIN users u ON p.created_by = u.id
+         WHERE p.approval_status = 'pending'
+         AND UPPER(TRIM(COALESCE(u.transporter, ''))) = $1
+         ORDER BY p.created_at DESC`,
+         [transporter]
+      );
+    } else {
+       partnerExportsList = await getMany(
+        `SELECT p.*, u.full_name as created_by_name, u.transporter, 'export' as type, 'partenaire_export_data' as source_table
+         FROM partenaire_export_data p
+         LEFT JOIN users u ON p.created_by = u.id
+         WHERE p.approval_status = 'pending'
+         ORDER BY p.created_at DESC`
+      );
+    }
+    
+    console.log(`📦 Pending Exports (exports table): ${pendingExports.length}`);
+    console.log(`📦 Pending Partner Exports (partenaire_export_data): ${partnerExportsList.length}`);
+
+    pendingExports = [...pendingExports, ...partnerExportsList];
+
+    // Get pending imports
+    let pendingImports = [];
+    if (isPartner && transporter) {
+      pendingImports = await getMany(
+        `SELECT i.*, u.full_name as created_by_name, 'import' as type
+         FROM imports i
+         LEFT JOIN users u ON i.created_by = u.id
+         WHERE i.approval_status = 'pending'
+         AND UPPER(TRIM(COALESCE(i.transporter, ''))) = $1
+         ORDER BY i.created_at DESC`,
+        [transporter]
+      );
+    } else {
+      pendingImports = await getMany(
+        `SELECT i.*, u.full_name as created_by_name, 'import' as type
+         FROM imports i
+         LEFT JOIN users u ON i.created_by = u.id
+         WHERE i.approval_status = 'pending'
+         ORDER BY i.created_at DESC`
+      );
+    }
+
+    res.json({
+      success: true,
+      pendingExports,
+      pendingImports,
+      totalPending: pendingExports.length + pendingImports.length,
+    });
+  } catch (error) {
+    console.error("Error fetching pending requests:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+    });
+  }
+};
+
+/**
+ * Get history requests for partenaire and agent import
+ * GET /api/notifications/history-requests
+ */
+const getHistoryRequests = async (req, res) => {
+  try {
     const isPartner = req.user.user_type === ROLES.PARTENAIRE;
     const isAgentImport = req.user.user_type === ROLES.AGENT_IMPORT;
     const transporter = normalizeTransporter(req.user.transporter);
@@ -369,15 +501,15 @@ const getPendingRequests = async (req, res) => {
           ? [ROLES.PARTENAIRE]
           : [];
 
-    // Get pending exports
-    let pendingExports = await getMany(
+    // Get history exports
+    let historyExports = await getMany(
       `SELECT e.*, u.full_name as created_by_name, 'export' as type, 'exports' as source_table
        FROM exports e
        LEFT JOIN users u ON e.created_by = u.id
-       WHERE e.approval_status = 'pending'
+       WHERE e.approval_status != 'pending'
        ${exportFilter}
        ${exportCreatorFilter}
-       ORDER BY e.created_at DESC`,
+       ORDER BY e.approved_at DESC NULLS LAST, e.created_at DESC`,
       exportParams,
     );
 
@@ -387,40 +519,40 @@ const getPendingRequests = async (req, res) => {
         `SELECT p.*, u.full_name as created_by_name, 'export' as type, 'partenaire_export_data' as source_table
          FROM partenaire_export_data p
          LEFT JOIN users u ON p.created_by = u.id
-         WHERE p.approval_status = 'pending'
+         WHERE p.approval_status != 'pending'
          AND UPPER(COALESCE(u.user_type, '')) = UPPER($1)
-         ORDER BY p.created_at DESC`,
+         ORDER BY p.approved_at DESC NULLS LAST, p.created_at DESC`,
         [ROLES.PARTENAIRE],
       );
-      pendingExports = [...pendingExports, ...partnerExports];
+      historyExports = [...historyExports, ...partnerExports];
 
       return res.json({
         success: true,
-        pendingExports,
-        pendingImports: [],
-        totalPending: pendingExports.length,
+        historyExports,
+        historyImports: [],
+        totalHistory: historyExports.length,
       });
     }
 
-    // Get pending imports
-    const pendingImports = await getMany(
+    // Get history imports
+    const historyImports = await getMany(
       `SELECT i.*, u.full_name as created_by_name, 'import' as type
        FROM imports i
        LEFT JOIN users u ON i.created_by = u.id
-       WHERE i.approval_status = 'pending'
+       WHERE i.approval_status != 'pending'
        ${importFilter}
-       ORDER BY i.created_at DESC`,
+       ORDER BY i.approved_at DESC NULLS LAST, i.created_at DESC`,
       isPartner && transporter ? [transporter] : [],
     );
 
     res.json({
       success: true,
-      pendingExports,
-      pendingImports,
-      totalPending: pendingExports.length + pendingImports.length,
+      historyExports,
+      historyImports,
+      totalHistory: historyExports.length + historyImports.length,
     });
   } catch (error) {
-    console.error("Error fetching pending requests:", error);
+    console.error("Error fetching history requests:", error);
     res.status(500).json({
       success: false,
       message: "Erreur serveur",
@@ -429,7 +561,7 @@ const getPendingRequests = async (req, res) => {
 };
 
 /**
- * Approve or reject a request (Partenaire only)
+ * Approve or reject a request
  * POST /api/notifications/decision
  */
 const handleDecision = async (req, res) => {
@@ -441,11 +573,15 @@ const handleDecision = async (req, res) => {
     sourceTable,
     barsCount,
     singlesCount,
+    suctionCupsCount,
   } = req.body;
 
   try {
-    const isPartner = req.user.user_type === ROLES.PARTENAIRE;
-    const isAgentImport = req.user.user_type === ROLES.AGENT_IMPORT;
+    const userRole = (req.user.user_type || "").toUpperCase();
+    const isPartner = userRole === ROLES.PARTENAIRE.toUpperCase();
+    const isAgentImport = userRole === ROLES.AGENT_IMPORT.toUpperCase();
+
+    console.log(`🚀 handleDecision: User=${req.user.full_name}, Role=${userRole}, Type=${requestType}, ID=${requestId}, Decision=${decision}`);
 
     if (!["export", "import"].includes(requestType)) {
       return res.status(400).json({
@@ -461,173 +597,140 @@ const handleDecision = async (req, res) => {
       });
     }
 
-    if (isAgentImport && requestType !== "export") {
-      return res.status(403).json({
-        success: false,
-        message:
-          "L'agent import ne peut traiter que les demandes d'export partenaire",
-      });
-    }
-
     let tableName = requestType === "export" ? "exports" : "imports";
-
     if (sourceTable === "partenaire_export_data" && requestType === "export") {
       tableName = "partenaire_export_data";
     }
 
     let existingRequest = await getOne(
       `SELECT * FROM ${tableName} WHERE id = $1`,
-      [requestId],
+      [requestId]
     );
 
-    // Backward-compatible fallback for old clients that don't send sourceTable.
+    // Fallback for missing sourceTable
     if (!existingRequest && requestType === "export" && isAgentImport) {
       tableName = "partenaire_export_data";
       existingRequest = await getOne(
         `SELECT * FROM partenaire_export_data WHERE id = $1`,
-        [requestId],
+        [requestId]
       );
     }
 
     if (!existingRequest) {
-      return res.status(404).json({
-        success: false,
-        message: "Demande non trouvée",
-      });
+      return res.status(404).json({ success: false, message: "Demande non trouvée" });
     }
 
-    const currentUserTransporter = normalizeTransporter(req.user.transporter);
-    const requestTransporter = normalizeTransporter(
-      existingRequest.transporter,
-    );
+    // Role-based validation
+    if (isAgentImport) {
+      const isPartenaireTable = tableName === "partenaire_export_data";
+      const isArrivedContainer = tableName === "exports" && existingRequest?.status === "arrived";
 
-    if (
-      isPartner &&
-      currentUserTransporter &&
-      requestTransporter &&
-      currentUserTransporter !== requestTransporter
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: "Cette demande ne correspond pas à votre transporteur",
-      });
-    }
-
-    if (isAgentImport && requestType === "export" && tableName === "exports") {
-      const creator = await getOne(
-        "SELECT user_type FROM users WHERE id = $1",
-        [existingRequest.created_by],
-      );
-
-      if (!creator || creator.user_type !== ROLES.PARTENAIRE) {
+      if (!isPartenaireTable && !isArrivedContainer) {
         return res.status(403).json({
           success: false,
-          message: "Cette demande n'est pas une demande d'export partenaire",
+          message: "L'agent import ne peut traiter que les demandes d'export partenaire ou les conteneurs arrivés",
         });
       }
     }
 
-    let result;
-    if (tableName === "partenaire_export_data") {
-      result = await query(
-        `UPDATE partenaire_export_data
-         SET approval_status = $1,
-             status = $2,
-             approved_by = $3,
-             approved_at = CURRENT_TIMESTAMP,
-             rejection_reason = $4,
-             number_of_bars = COALESCE($5, number_of_bars),
-             number_of_straps = COALESCE($6, number_of_straps)
-         WHERE id = $7
-         RETURNING *`,
-        [
-          decision,
-          decision,
-          req.user.id,
-          decision === "rejected" ? reason : null,
-          barsCount ?? null,
-          singlesCount ?? null,
-          requestId,
-        ],
-      );
-    } else if (tableName === "exports" && requestType === "export") {
-      result = await query(
-        `UPDATE exports
-         SET approval_status = $1,
-             approved_by = $2,
-             approved_at = CURRENT_TIMESTAMP,
-             rejection_reason = $3,
-             bars_count = COALESCE($4, bars_count),
-             singles_count = COALESCE($5, singles_count)
-         WHERE id = $6
-         RETURNING *`,
-        [
-          decision,
-          req.user.id,
-          decision === "rejected" ? reason : null,
-          barsCount ?? null,
-          singlesCount ?? null,
-          requestId,
-        ],
-      );
-    } else {
-      result = await query(
-        `UPDATE ${tableName}
-         SET approval_status = $1,
-             approved_by = $2,
-             approved_at = CURRENT_TIMESTAMP,
-             rejection_reason = $3
-         WHERE id = $4
-         RETURNING *`,
-        [
-          decision,
-          req.user.id,
-          decision === "rejected" ? reason : null,
-          requestId,
-        ],
-      );
-    }
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      
+      let result;
+      if (tableName === "partenaire_export_data") {
+        result = await client.query(
+          `UPDATE partenaire_export_data 
+           SET approval_status = $1, approved_by = $2, approved_at = CURRENT_TIMESTAMP, 
+               rejection_reason = $3, received_bars = $4, received_singles = $5, received_suction_cups = $6
+           WHERE id = $7 RETURNING *`,
+          [
+            decision, req.user.id, decision === "rejected" ? reason : null, 
+            barsCount || null, singlesCount || null, suctionCupsCount || null, requestId
+          ]
+        );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Demande non trouvée",
+        if (decision === "approved" && result.rows.length > 0) {
+          const approvedRequest = result.rows[0];
+          const creatorRes = await client.query("SELECT transporter FROM users WHERE id = $1", [approvedRequest.created_by]);
+          const transporter = normalizeTransporter(creatorRes.rows[0]?.transporter);
+
+          if (transporter) {
+            await client.query(
+              `UPDATE stocks SET bars_count = bars_count + $1, singles_count = singles_count + $2, 
+                             suction_cups_count = suction_cups_count + $3, updated_at = CURRENT_TIMESTAMP
+               WHERE UPPER(transporter) = UPPER($4)`,
+              [barsCount || approvedRequest.bars_count || 0, singlesCount || approvedRequest.singles_count || 0, 
+               suctionCupsCount || approvedRequest.suction_cups_count || 0, transporter]
+            );
+          }
+        }
+      } else if (tableName === "exports" && requestType === "export") {
+        const isArrived = existingRequest.status === 'arrived';
+        result = await client.query(
+          `UPDATE exports
+           SET approval_status = $1, approved_by = $2, approved_at = CURRENT_TIMESTAMP, rejection_reason = $3,
+               received_bars = $4, received_singles = $5, received_suction_cups = $6,
+               status = CASE WHEN $1 = 'approved' AND status = 'arrived' THEN 'received' ELSE status END,
+               actual_arrival_date = CASE WHEN $1 = 'approved' AND status = 'arrived' THEN CURRENT_DATE ELSE actual_arrival_date END
+           WHERE id = $7 RETURNING *`,
+          [
+            decision, req.user.id, decision === "rejected" ? reason : null,
+            barsCount || existingRequest.bars_count || 0, singlesCount || existingRequest.singles_count || 0,
+            suctionCupsCount || existingRequest.suction_cups_count || 0, requestId
+          ]
+        );
+
+        if (decision === "approved" && result.rows.length > 0) {
+          const transporter = normalizeTransporter(existingRequest.transporter);
+          if (transporter && isArrived) {
+            await client.query(
+              `UPDATE stocks SET bars_count = bars_count + $1, singles_count = singles_count + $2, 
+                             suction_cups_count = suction_cups_count + $3, updated_at = CURRENT_TIMESTAMP
+               WHERE UPPER(transporter) = UPPER($4)`,
+              [barsCount || existingRequest.bars_count || 0, singlesCount || existingRequest.singles_count || 0,
+               suctionCupsCount || existingRequest.suction_cups_count || 0, transporter]
+            );
+          }
+        }
+      } else {
+        result = await client.query(
+          `UPDATE \${tableName} SET approval_status = $1, approved_by = $2, approved_at = CURRENT_TIMESTAMP, rejection_reason = $3
+           WHERE id = $4 RETURNING *`,
+          [decision, req.user.id, decision === "rejected" ? reason : null, requestId]
+        );
+      }
+
+      await client.query("COMMIT");
+      const updatedRequest = result.rows[0];
+
+      if (!updatedRequest) {
+         return res.status(404).json({ success: false, message: "Demande non trouvée" });
+      }
+
+      await query(
+        `UPDATE notifications SET action_taken = $1, action_required = FALSE
+         WHERE reference_type = $2 AND reference_id = $3 AND recipient_id = $4`,
+        [decision, requestType, requestId, req.user.id]
+      );
+
+      await notifyForDecision(requestType, requestId, decision, req.user.id, reason);
+
+      res.json({
+        success: true,
+        message: decision === "approved" ? "Demande approuvée" : "Demande refusée",
+        request: updatedRequest,
       });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.error("Error in handleDecision transaction:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    } finally {
+      client.release();
     }
-
-    // Update the notification action
-    await query(
-      `UPDATE notifications 
-       SET action_taken = $1, action_required = FALSE
-       WHERE reference_type = $2 AND reference_id = $3 AND recipient_id = $4`,
-      [decision, requestType, requestId, req.user.id],
-    );
-
-    // Send notifications about the decision
-    await notifyForDecision(
-      requestType,
-      requestId,
-      decision,
-      req.user.id,
-      reason,
-    );
-
-    console.log(
-      `✅ ${requestType} #${requestId} ${decision} par ${req.user.email}`,
-    );
-
-    res.json({
-      success: true,
-      message:
-        decision === "approved" ? "Demande approuvée" : "Demande refusée",
-      request: result.rows[0],
-    });
   } catch (error) {
-    console.error("Error handling decision:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-    });
+    console.error("Outer error in handleDecision:", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
@@ -671,6 +774,7 @@ module.exports = {
   markAsRead,
   markAllAsRead,
   getPendingRequests,
+  getHistoryRequests,
   handleDecision,
   deleteNotification,
 };

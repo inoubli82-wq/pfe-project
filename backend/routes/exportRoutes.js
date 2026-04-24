@@ -23,6 +23,15 @@ router.get("/:id", exportAccess, exportController.getExportById);
 // PATCH /api/exports/:id/status - Update export status
 router.patch("/:id/status", exportAccess, exportController.updateExportStatus);
 
+// PATCH /api/exports/:id/arrival - Update arrival info (transporter)
+router.patch("/:id/arrival", exportAccess, exportController.updateArrivalInfo);
+
+// PATCH /api/exports/:id/receive - Receive export (Agent Import)
+router.patch("/:id/receive", exportAccess, exportController.receiveExport);
+
+// PUT /api/exports/:id - Update export details
+router.put("/:id", exportAccess, exportController.updateExport);
+
 // DELETE /api/exports/:id - Delete export
 router.delete("/:id", exportAccess, exportController.deleteExport);
 

@@ -24,6 +24,7 @@ class _AgentImportVerificationRequestCardState
     extends State<AgentImportVerificationRequestCard> {
   int _barsCount = 0;
   int _strapsCount = 0;
+  int _suctionCupsCount = 0;
   bool _isLoading = false;
   bool _showRejectComment = false;
   final TextEditingController _commentController = TextEditingController();
@@ -33,6 +34,7 @@ class _AgentImportVerificationRequestCardState
     super.initState();
     _barsCount = widget.request.barsCount ?? 0;
     _strapsCount = widget.request.singlesCount ?? 0;
+    _suctionCupsCount = widget.request.suctionCupsCount ?? 0;
   }
 
   @override
@@ -49,6 +51,11 @@ class _AgentImportVerificationRequestCardState
   void _incrementStraps() => setState(() => _strapsCount++);
   void _decrementStraps() {
     if (_strapsCount > 0) setState(() => _strapsCount--);
+  }
+
+  void _incrementSuctionCups() => setState(() => _suctionCupsCount++);
+  void _decrementSuctionCups() {
+    if (_suctionCupsCount > 0) setState(() => _suctionCupsCount--);
   }
 
   Future<void> _handleDecision(String decision) async {
@@ -91,6 +98,7 @@ class _AgentImportVerificationRequestCardState
         extraData: {
           'barsCount': _barsCount,
           'singlesCount': _strapsCount,
+          'suctionCupsCount': _suctionCupsCount,
           'sourceTable': widget.request.sourceTable,
         },
       );
@@ -140,11 +148,12 @@ class _AgentImportVerificationRequestCardState
   }
 
   @override
-  Widget build(BuildContext context) {
+ Widget build(BuildContext context) {
     return VerificationRequestCardContent(
       request: widget.request,
       barsCount: _barsCount,
       strapsCount: _strapsCount,
+      suctionCupsCount: _suctionCupsCount,
       isLoading: _isLoading,
       showRejectComment: _showRejectComment,
       commentController: _commentController,
@@ -153,6 +162,11 @@ class _AgentImportVerificationRequestCardState
       onDecrementBars: _decrementBars,
       onIncrementStraps: _incrementStraps,
       onDecrementStraps: _decrementStraps,
+      onIncrementSuctionCups: _incrementSuctionCups,
+      onDecrementSuctionCups: _decrementSuctionCups,
+      onBarsChanged: (val) => setState(() => _barsCount = val),
+      onStrapsChanged: (val) => setState(() => _strapsCount = val),
+      onSuctionCupsChanged: (val) => setState(() => _suctionCupsCount = val),
       onApprove: () => _handleDecision('approved'),
       onReject: () => _handleDecision('rejected'),
       onCancelReject: () {

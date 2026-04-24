@@ -8,6 +8,7 @@ import '../admin/admin_dashboard_screen.dart';
 import '../agent_export/export_dashboard_screen.dart';
 import '../agent_import/import_dashboard_screen.dart';
 import '../partenaire/partenaire_dashboard_screen.dart';
+import '../agent_stock/stock_agent_dashboard.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -107,6 +108,9 @@ class _SplashScreenState extends State<SplashScreen>
         break;
       case UserRole.partenaire:
         dashboard = PartenaireDashboardScreen(user: user);
+        break;
+      case UserRole.agentStock:
+        dashboard = StockAgentDashboard(user: user);
         break;
     }
 

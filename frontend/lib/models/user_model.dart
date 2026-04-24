@@ -6,6 +6,7 @@ enum UserRole {
   admin,
   agentExport,
   agentImport,
+  agentStock,
   partenaire,
 }
 
@@ -41,6 +42,9 @@ class User {
       case 'agent import':
       case 'agentimport':
         return UserRole.agentImport;
+      case 'agent de stock':
+      case 'agentstock':
+        return UserRole.agentStock;
       case 'partenaire':
         return UserRole.partenaire;
       default:
@@ -57,6 +61,8 @@ class User {
         return 'Agent Export';
       case UserRole.agentImport:
         return 'Agent Import';
+      case UserRole.agentStock:
+        return 'Agent de Stock';
       case UserRole.partenaire:
         return 'Partenaire';
     }
@@ -71,6 +77,8 @@ class User {
         return 'Agent Export';
       case UserRole.agentImport:
         return 'Agent Import';
+      case UserRole.agentStock:
+        return 'Agent de Stock';
       case UserRole.partenaire:
         return 'Partenaire';
     }
@@ -111,6 +119,7 @@ class User {
   bool get isAdmin => role == UserRole.admin;
   bool get isAgentExport => role == UserRole.agentExport;
   bool get isAgentImport => role == UserRole.agentImport;
+  bool get isAgentStock => role == UserRole.agentStock;
   bool get isPartenaire => role == UserRole.partenaire;
 
   String get displayRoleLabel {
@@ -123,6 +132,7 @@ class User {
   // Check if user can access certain features
   bool canCreateExport() => isAdmin || isAgentExport;
   bool canCreateImport() => isAdmin || isAgentImport;
+  bool canManageStock() => isAdmin || isAgentStock;
   bool canManageUsers() => isAdmin;
   bool canViewReports() => isAdmin;
   bool canViewAllExports() => isAdmin || isAgentExport;

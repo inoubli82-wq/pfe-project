@@ -48,6 +48,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isAdmin => _currentUser?.isAdmin ?? false;
   bool get isAgentExport => _currentUser?.isAgentExport ?? false;
   bool get isAgentImport => _currentUser?.isAgentImport ?? false;
+  bool get isAgentStock => _currentUser?.isAgentStock ?? false;
   bool get isPartenaire => _currentUser?.isPartenaire ?? false;
 
   // ==================== INITIALIZATION ====================

@@ -24,10 +24,37 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
 
+  final _barsController = TextEditingController(text: '0');
+  final _strapsController = TextEditingController(text: '0');
+  final _suctionCupsController = TextEditingController(text: '0');
+
+  @override
+  void initState() {
+    super.initState();
+    _barsController.addListener(() {
+      setState(() {
+        _numberOfBars = int.tryParse(_barsController.text) ?? 0;
+      });
+    });
+    _strapsController.addListener(() {
+      setState(() {
+        _numberOfStraps = int.tryParse(_strapsController.text) ?? 0;
+      });
+    });
+    _suctionCupsController.addListener(() {
+      setState(() {
+        _numberOfSuctionCups = int.tryParse(_suctionCupsController.text) ?? 0;
+      });
+    });
+  }
+
   @override
   void dispose() {
     _trailerController.dispose();
     _clientController.dispose();
+    _barsController.dispose();
+    _strapsController.dispose();
+    _suctionCupsController.dispose();
     super.dispose();
   }
 
@@ -103,6 +130,9 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
   void _clearForm() {
     _trailerController.clear();
     _clientController.clear();
+    _barsController.text = '0';
+    _strapsController.text = '0';
+    _suctionCupsController.text = '0';
     setState(() {
       _selectedDate = DateTime.now();
       _numberOfBars = 0;
@@ -111,7 +141,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
     });
   }
 
-  Widget _buildCounterRow(String label, int value, Function(int) onChanged) {
+  Widget _buildCounterRow(String label, int value, TextEditingController controller, Function(int) onChanged) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -141,7 +171,9 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                 GestureDetector(
                   onTap: () {
                     if (value > 0) {
-                      onChanged(value - 1);
+                      final newVal = value - 1;
+                      onChanged(newVal);
+                      controller.text = newVal.toString();
                     }
                   },
                   child: Container(
@@ -154,20 +186,34 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                   ),
                 ),
                 Container(
-                  width: 50,
+                  width: 60,
                   alignment: Alignment.center,
-                  child: Text(
-                    value.toString(),
+                  child: TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF0C44A6),
                     ),
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    onChanged: (val) {
+                      if (val.isNotEmpty) {
+                        onChanged(int.tryParse(val) ?? 0);
+                      }
+                    },
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
-                    onChanged(value + 1);
+                    final newVal = value + 1;
+                    onChanged(newVal);
+                    controller.text = newVal.toString();
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8),
@@ -176,7 +222,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.add,
-                        color: Color(0xFF0C44A6), size: 20),
+                        color: Colors.white, size: 20),
                   ),
                 ),
               ],
@@ -193,7 +239,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Partenaire Export',
+          'Enregistrer Retour / Export',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -201,8 +247,8 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: const Color.fromARGB(255, 48, 6, 231),
-        foregroundColor: const Color(0xFF0C44A6),
+        backgroundColor: const Color(0xFF0C44A6),
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
@@ -263,7 +309,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF0C44A6),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -274,11 +320,11 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                             ),
                             const SizedBox(width: 12),
                             const Text(
-                              'Nouvel Export Partenaire',
+                              'Enregistrer Retour Partenaire',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0C44A6),
+                                color: Colors.white,
                               ),
                             ),
                           ],
@@ -431,6 +477,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                             _buildCounterRow(
                               'Nombre de Barres',
                               _numberOfBars,
+                              _barsController,
                               (value) => setState(() => _numberOfBars = value),
                             ),
 
@@ -438,6 +485,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                             _buildCounterRow(
                               'Nombre de Sangles',
                               _numberOfStraps,
+                              _strapsController,
                               (value) =>
                                   setState(() => _numberOfStraps = value),
                             ),
@@ -446,6 +494,7 @@ class _PartnerExportScreenState extends State<PartnerExportScreen> {
                             _buildCounterRow(
                               'Nombre Ventouses',
                               _numberOfSuctionCups,
+                              _suctionCupsController,
                               (value) =>
                                   setState(() => _numberOfSuctionCups = value),
                             ),

@@ -6,6 +6,7 @@ import 'package:import_export_app/services/api_service.dart';
 import 'package:import_export_app/widgets/widgets.dart';
 
 import 'verify_partner_export_requests_screen.dart';
+import 'import_history_screen.dart';
 
 // ===========================================
 // IMPORT AGENT DASHBOARD
@@ -101,11 +102,10 @@ class _ImportDashboardScreenState extends State<ImportDashboardScreen> {
 
                       const SizedBox(height: 30),
 
-                      // Verify Partner Export Requests Button
                       ActionCardButton(
-                        title: 'Vérifier export partenaire',
+                        title: 'Vérifier retours et arrivées',
                         subtitle:
-                            'Traiter les demandes export en attente des partenaires',
+                            'Contrôler les barres ramenées par le transporteur au retour',
                         icon: Icons.fact_check,
                         color: const Color(0xFF0C44A6),
                         onTap: () {
@@ -121,11 +121,29 @@ class _ImportDashboardScreenState extends State<ImportDashboardScreen> {
 
                       const SizedBox(height: 20),
 
+                      // Historique
+                      ActionCardButton(
+                        title: 'Historique des vérifications',
+                        subtitle: 'Consulter l\'historique des demandes traitées',
+                        icon: Icons.history,
+                        color: Colors.blueGrey,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ImportHistoryScreen(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+
                       const Spacer(),
 
                       // Info Text
                       Text(
-                        'Vous traitez uniquement les demandes d\'export créées par les partenaires',
+                        'Vous traitez toutes les demandes de retour et les arrivées de conteneurs',
                         style: TextStyle(
                           color: Colors.grey[500],
                           fontSize: 12,

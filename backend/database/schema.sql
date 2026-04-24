@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(50),
     country_code VARCHAR(10) DEFAULT '+216',
-    user_type VARCHAR(50) NOT NULL CHECK (user_type IN ('admin', 'Agent Export', 'Agent Import', 'Partenaire')),
+    user_type VARCHAR(50) NOT NULL CHECK (user_type IN ('admin', 'Agent Export', 'Agent Import', 'Agent de Stock', 'Partenaire')),
     transporter VARCHAR(100),
     password VARCHAR(255) NOT NULL,
     status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS exports (
     transporter VARCHAR(255),
     bars_count INTEGER DEFAULT 0,
     singles_count INTEGER DEFAULT 0,
+    suction_cups_count INTEGER DEFAULT 0,
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
     approval_status VARCHAR(50) DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
     approved_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -167,6 +168,28 @@ CREATE TRIGGER update_imports_updated_at
 DROP TRIGGER IF EXISTS update_partenaire_export_updated_at ON partenaire_export_data;
 CREATE TRIGGER update_partenaire_export_updated_at
     BEFORE UPDATE ON partenaire_export_data
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- ===========================================
+-- STOCKS TABLE
+-- ===========================================
+CREATE TABLE IF NOT EXISTS stocks (
+    id SERIAL PRIMARY KEY,
+    transporter VARCHAR(100) UNIQUE NOT NULL,
+    bars_count INTEGER DEFAULT 0,
+    singles_count INTEGER DEFAULT 0,
+    suction_cups_count INTEGER DEFAULT 0,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for stocks
+CREATE INDEX IF NOT EXISTS idx_stocks_transporter ON stocks(transporter);
+
+-- Trigger for stocks update
+DROP TRIGGER IF EXISTS update_stocks_updated_at ON stocks;
+CREATE TRIGGER update_stocks_updated_at
+    BEFORE UPDATE ON stocks
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 

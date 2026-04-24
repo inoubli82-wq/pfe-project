@@ -40,22 +40,6 @@ class _PartnerSuiviScreenState extends State<PartnerSuiviScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Suivi des Exports',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0C44A6),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -90,16 +74,17 @@ class _PartnerSuiviScreenState extends State<PartnerSuiviScreen> {
                           type: 'export',
                           trailerNumber: export.trailerNumber,
                           entityName: export.clientName,
-                          country:
-                              '', // 'Country' not directly available in ExportData here, leave empty if not present
+                          country: '', 
                           date: export.embarkationDate,
                           status: export.approvalStatus,
                           approvalStatus: export.approvalStatus,
                           createdByName: widget.user.fullName,
+                          trailing: null,
                         );
                       },
                     ),
             ),
     );
   }
+
 }
